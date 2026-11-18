@@ -1,13 +1,14 @@
 {
+  "id": "/Virtual-Shop/",
   "name": "Virtual Shop",
   "short_name": "Virtual Shop",
   "description": "Ваш интернет-магазин",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "https://aliiinkfrbvkirsn.github.io/Virtual-Shop/",
+  "scope": "https://aliiinkfrbvkirsn.github.io/Virtual-Shop/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#101014",
-  "theme_color": "#101014",
+  "theme_color": "#7135f4",
   "icons": [
     {
       "src": "./icons/icon.svg",

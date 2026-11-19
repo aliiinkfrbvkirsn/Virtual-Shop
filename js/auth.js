@@ -1,15 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
-
 const SUPABASE_URL = "https://qmtyidlsoeotjfyhnghj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_oVfg8lt1cr-yy0biWYsRng_T-yfROHC";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
 
 export function initAuth({ notify = () => {} } = {}) {
   const $ = selector => document.querySelector(selector);
@@ -28,6 +18,9 @@ export function initAuth({ notify = () => {} } = {}) {
   const adminPanel = $("#adminPanel");
   let mode = "login";
   let session = null;
+  let supabase = null;
+  let profileSyncedFor = null;
+  let clientPromise = null;
 
   const setMessage = (text, type = "") => {
     message.textContent = text;
@@ -64,13 +57,17 @@ export function initAuth({ notify = () => {} } = {}) {
   };
 
   async function syncProfile(user) {
-    if (!user?.id) return;
+    if (!user?.id || profileSyncedFor === user.id || !supabase) return;
+    profileSyncedFor = user.id;
     const fullName = String(user.user_metadata?.full_name || "").trim().slice(0, 80);
     const { error } = await supabase.from("profiles").upsert(
       { id: user.id, full_name: fullName },
       { onConflict: "id" }
     );
-    if (error) console.warn("Virtual Shop: профиль пока не синхронизирован", error.message);
+    if (error) {
+      profileSyncedFor = null;
+      console.warn("Virtual Shop: профиль пока не синхронизирован", error.message);
+    }
     const { data: profile } = await supabase.from("profiles")
       .select("role, full_name").eq("id", user.id).maybeSingle();
     const role = profile?.role || "customer";
@@ -133,6 +130,7 @@ export function initAuth({ notify = () => {} } = {}) {
     submit.textContent = mode === "signup" ? "Создаём аккаунт…" : "Входим…";
     setMessage("");
     try {
+      if (!supabase) await initializeClient();
       if (mode === "signup") {
         const emailRedirectTo = new URL("./", window.location.href).href;
         const { data, error } = await supabase.auth.signUp({
@@ -174,6 +172,11 @@ export function initAuth({ notify = () => {} } = {}) {
 
   signOut.addEventListener("click", async () => {
     signOut.disabled = true;
+    if (!supabase) {
+      signOut.disabled = false;
+      setMessage("Сервис авторизации пока недоступен. Проверьте интернет и попробуйте снова.", "error");
+      return;
+    }
     const { error } = await supabase.auth.signOut();
     signOut.disabled = false;
     if (error) {
@@ -184,17 +187,35 @@ export function initAuth({ notify = () => {} } = {}) {
     notify("Вы вышли из аккаунта");
   });
 
-  supabase.auth.onAuthStateChange((_event, nextSession) => {
-    renderSession(nextSession);
-  });
-
-  supabase.auth.getSession().then(({ data, error }) => {
-    if (error) {
-      console.warn("Virtual Shop: не удалось восстановить сессию", error.message);
-      return;
-    }
-    renderSession(data.session);
-  });
+  async function initializeClient() {
+    if (supabase) return supabase;
+    if (clientPromise) return clientPromise;
+    clientPromise = (async () => {
+      const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.119.1");
+      supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
+        }
+      });
+      supabase.auth.onAuthStateChange((_event, nextSession) => {
+        renderSession(nextSession);
+      });
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      renderSession(data.session);
+      return supabase;
+    })().catch(error => {
+      clientPromise = null;
+      throw error;
+    });
+    return clientPromise;
+  }
 
   setMode("login");
+  void initializeClient().catch(error => {
+    console.error("Virtual Shop: Supabase не загрузился", error);
+    setMessage("Не удалось подключить авторизацию. Магазин доступен, проверьте интернет и попробуйте снова.", "error");
+  });
 }

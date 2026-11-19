@@ -100,8 +100,32 @@
     <div class="cart-bottom"><div><span data-i18n="total">Итого</span><strong id="cartTotal">0 сом</strong></div><button class="primary-btn" id="checkoutBtn" data-i18n="checkout">Оформить заказ ↗</button><small data-i18n="checkoutNote">Демо: реальная оплата пока не подключена.</small></div>
   </aside>
 
-  <div class="modal" id="accountModal">
-    <div class="modal-card"><button class="close-btn modal-close" id="closeAccount">×</button><div class="eyebrow"><i></i> VIRTUAL SHOP</div><h2 data-i18n="accountTitle">Личный кабинет</h2><p data-i18n="accountText">Это демонстрационный профиль покупателя.</p><label><span data-i18n="yourName">Ваше имя</span><input id="customerName" placeholder="Имя"></label><button class="primary-btn" id="saveAccount" data-i18n="save">Сохранить</button><small data-i18n="accountNote">Профиль сохраняется только на этом устройстве.</small></div>
+  <div class="modal" id="accountModal" aria-hidden="true">
+    <div class="modal-card auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="close-btn modal-close" id="closeAccount" type="button" aria-label="Закрыть">×</button>
+      <div class="eyebrow"><i></i> VIRTUAL SHOP / ACCOUNT</div>
+      <h2 id="authTitle">Войти в аккаунт</h2>
+      <p id="authDescription">Войдите или создайте аккаунт, чтобы пользоваться личным кабинетом.</p>
+      <div class="auth-tabs" id="authTabs">
+        <button type="button" class="auth-tab active" data-auth-mode="login">Вход</button>
+        <button type="button" class="auth-tab" data-auth-mode="signup">Регистрация</button>
+      </div>
+      <form id="authForm" novalidate>
+        <label id="authNameField" hidden><span>Ваше имя</span><input id="authName" name="name" autocomplete="name" maxlength="80" placeholder="Как к вам обращаться"></label>
+        <label><span>Электронная почта</span><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com"></label>
+        <label><span>Пароль</span><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Не менее 8 символов"></label>
+        <button class="primary-btn" id="authSubmit" type="submit">Войти <span>↗</span></button>
+      </form>
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+      <div class="auth-signed-in" id="authSignedIn" hidden>
+        <div class="auth-user-mark" id="authUserMark">A</div>
+        <strong id="authUserEmail"></strong>
+        <span>Аккаунт подключён</span>
+        <button class="primary-btn" id="authSignOut" type="button">Выйти из аккаунта</button>
+      </div>
+      <button class="auth-switch" id="authSwitch" type="button">Нет аккаунта? Зарегистрироваться</button>
+      <small class="auth-note">При регистрации мы отправим письмо подтверждения на указанную вами почту. Пароль не сохраняется в коде сайта.</small>
+    </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
   <script type="module" src="./js/app.js"></script>

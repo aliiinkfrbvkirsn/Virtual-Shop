@@ -1,4 +1,4 @@
-const CACHE_NAME = "virtual-shop-v4";
+const CACHE_NAME = "virtual-shop-v5";
 const FILES = [
   "./",
   "./index.html",
@@ -9,7 +9,8 @@ const FILES = [
   "./styles.css",
   "./js/data.js",
   "./js/storage.js",
-  "./js/app.js"
+  "./js/app.js",
+  "./js/auth.js"
 ];
 
 self.addEventListener("install", event => {

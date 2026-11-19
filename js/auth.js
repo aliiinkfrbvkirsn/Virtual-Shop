@@ -176,19 +176,17 @@ export function initAuth({ notify = () => {} } = {}) {
 
   signOut.addEventListener("click", async () => {
     signOut.disabled = true;
-    if (!supabase) {
+    try {
+      if (!supabase) await initializeClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setMode("login");
+      notify("Вы вышли из аккаунта");
+    } catch (error) {
+      setMessage("Не удалось выйти: " + (error?.message || "проверьте интернет и попробуйте снова."), "error");
+    } finally {
       signOut.disabled = false;
-      setMessage("Сервис авторизации пока недоступен. Проверьте интернет и попробуйте снова.", "error");
-      return;
     }
-    const { error } = await supabase.auth.signOut();
-    signOut.disabled = false;
-    if (error) {
-      setMessage("Не удалось выйти: " + error.message, "error");
-      return;
-    }
-    setMode("login");
-    notify("Вы вышли из аккаунта");
   });
 
   async function initializeClient() {

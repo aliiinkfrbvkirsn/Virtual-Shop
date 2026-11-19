@@ -1,34 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#7135f4">
-  <title>Комната продавца — Virtual Shop</title>
-  <link rel="stylesheet" href="./styles.css">
-  <style>
-    body{background:#f0f1e9}
-    .seller-page-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 5%;background:#fff;border-bottom:1px solid #e2e5db}
-    .seller-page-top .brand{text-decoration:none;color:var(--ink)}
-    .seller-page-actions{display:flex;align-items:center;gap:12px}
-    .seller-page-actions a{font-size:11px;font-weight:800;color:#526b32;text-decoration:none}
-    .seller-page-actions button{border:1px solid #e1e4d9;background:#fff;border-radius:30px;padding:10px 14px;font-size:11px;font-weight:800}
-    .seller-page-main{max-width:1440px;margin:0 auto;padding:0 4% 55px}
-    .seller-dashboard{padding-top:38px}
-    .seller-access-message{max-width:620px;margin:12vh auto;background:white;border:1px solid #e2e5db;border-radius:18px;padding:28px;text-align:center;line-height:1.7}
-    @media(max-width:620px){.seller-page-top{padding:12px 4%}.seller-page-actions{gap:8px}.seller-page-actions a{font-size:10px}.seller-page-actions button{font-size:10px;padding:9px 10px}.seller-page-main{padding:0 3% 35px}}
-  </style>
-</head>
-<body>
-  <header class="seller-page-top">
-    <a class="brand" href="./" aria-label="Вернуться в Virtual Shop"><span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span></a>
-    <div class="seller-page-actions"><a href="./">← Вернуться в магазин</a><button id="sellerLogout" type="button">Выйти</button></div>
-  </header>
-  <main class="seller-page-main">
-    <div class="seller-access-message" id="sellerAccessMessage">Проверяем доступ к комнате продавца…</div>
-    <div id="sellerWorkspace" hidden>
-      <div style="padding:26px 0 0;color:#68705e;font-size:11px">Вы вошли как: <strong id="sellerUserEmail"></strong></div>
-          <section class="seller-dashboard section" id="adminPanel" hidden>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#7135f4">
+<title>Комната продавца — Virtual Shop</title><link rel="stylesheet" href="./styles.css">
+<style>
+body{background:#f0f1e9}.seller-page-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 5%;background:#fff;border-bottom:1px solid #e2e5db}
+.seller-page-top .brand{text-decoration:none;color:var(--ink)}.seller-page-actions{display:flex;align-items:center;gap:12px}
+.seller-page-actions a{font-size:11px;font-weight:800;color:#526b32;text-decoration:none}.seller-page-actions button{border:1px solid #e1e4d9;background:#fff;border-radius:30px;padding:10px 14px;font-size:11px;font-weight:800}
+.seller-page-main{max-width:1440px;margin:0 auto;padding:0 4% 55px}.seller-dashboard{padding-top:38px}
+.seller-access-message{max-width:620px;margin:12vh auto;background:white;border:1px solid #e2e5db;border-radius:18px;padding:28px;text-align:center;line-height:1.7}
+@media(max-width:620px){.seller-page-top{padding:12px 4%}.seller-page-actions{gap:8px}.seller-page-actions a,.seller-page-actions button{font-size:10px}.seller-page-actions button{padding:9px 10px}.seller-page-main{padding:0 3% 35px}}
+</style></head><body>
+<header class="seller-page-top"><a class="brand" href="./" aria-label="Вернуться в Virtual Shop"><span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span></a>
+<div class="seller-page-actions"><a href="./">← Вернуться в магазин</a><button id="sellerLogout" type="button">Выйти</button></div></header>
+<main class="seller-page-main"><div class="seller-access-message" id="sellerAccessMessage">Проверяем доступ к комнате продавца…</div>
+<div id="sellerWorkspace" hidden><section class="seller-dashboard section" id="adminPanel" hidden>
       <div class="seller-heading">
         <div><div class="eyebrow"><i></i> VIRTUAL SHOP / SELLER SPACE</div><h2>Комната продавца</h2><p>Управляйте товарами, заказами и остатками в одном месте.</p></div>
         <span class="seller-status"><i></i> Кабинет продавца</span>
@@ -54,9 +40,30 @@
             <div class="seller-welcome"><div><span>VIRTUAL SHOP / SELLER</span><h4>Ваш магазин. Ваши правила.</h4><p>Добавляйте новые позиции, следите за остатками и проверяйте заказы.</p></div><b>V<span>↗</span></b></div>
             <div class="seller-latest"><div class="seller-block-head"><h4>Последние товары</h4><button class="seller-link" data-seller-go="products">Все товары ↗</button></div><div id="overviewProducts"></div></div>
           </section>
-    </div>
-  </main>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./seller.js"></script>
-</body>
-</html>
+          <section class="seller-view" data-seller-panel="products" hidden>
+            <div class="seller-view-head"><div><span class="seller-kicker">КАТАЛОГ</span><h3>Мои товары</h3></div><span class="seller-count" id="sellerProductCount">0 позиций</span></div>
+            <div class="seller-form-card"><div class="seller-block-head"><div><h4 id="sellerFormTitle">Добавить новый товар</h4><p>Заполните информацию о товаре</p></div><span class="seller-plus">＋</span></div>
+              <form id="productForm" class="product-form seller-product-form">
+                <label><span>Название товара</span><input id="productName" required maxlength="100" placeholder="Например, Наушники"></label>
+                <label><span>Цена (сом)</span><input id="productPrice" required type="number" min="1" placeholder="2500"></label>
+                <label><span>Количество на складе</span><input id="productStock" required type="number" min="0" placeholder="10"></label>
+                <label><span>Категория</span><select id="productCategory"><option value="Техника">Техника</option><option value="Одежда">Одежда</option><option value="Дом">Дом</option><option value="Аксессуары">Аксессуары</option></select></label>
+                <label class="wide"><span>Ссылка на изображение</span><input id="productImage" type="url" placeholder="https://..."></label>
+                <div class="seller-form-actions"><button class="primary-btn" id="productSubmit" type="submit">Добавить товар <span>＋</span></button><button class="seller-cancel" id="cancelProductEdit" type="button" hidden>Отмена</button></div>
+              </form>
+            </div>
+            <div class="seller-table-card"><div class="seller-block-head"><h4>Все товары</h4><span class="seller-count" id="sellerProductCount2">0 позиций</span></div><div id="inventoryList"></div></div>
+          </section>
+          <section class="seller-view" data-seller-panel="orders" hidden>
+            <div class="seller-view-head"><div><span class="seller-kicker">ПРОДАЖИ</span><h3>Заказы</h3></div></div>
+            <div class="seller-table-card"><div class="seller-block-head"><h4>История заказов</h4></div><div id="sellerOrders"></div></div>
+          </section>
+          <section class="seller-view" data-seller-panel="inventory" hidden>
+            <div class="seller-view-head"><div><span class="seller-kicker">УЧЁТ ТОВАРОВ</span><h3>Склад</h3></div></div>
+            <div class="seller-stats seller-stock-summary"><article class="seller-stat"><span>Всего единиц</span><strong id="stockTotal">0</strong><small>Все категории</small></article><article class="seller-stat"><span>Заканчиваются</span><strong id="stockLow">0</strong><small>5 или меньше</small></article></div>
+            <div class="seller-table-card"><div class="seller-block-head"><h4>Остатки на складе</h4></div><div id="sellerStockList"></div></div>
+          </section>
+        </div>
+      </div>
+    </section></div></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><script type="module" src="./seller.js"></script></body></html>

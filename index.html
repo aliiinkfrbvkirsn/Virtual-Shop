@@ -106,7 +106,7 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
-  <script type="module" src="./js/app.js?v=seller20261119"></script>
+  <script type="module" src="./js/app.js?v=authfix20261119"></script>
   <script>
 (() => {
   const button = document.getElementById("accountBtn");
@@ -117,6 +117,10 @@
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
     });
+  }
+  if (new URLSearchParams(window.location.search).get("login") === "1" && button) {
+    button.click();
+    window.history.replaceState({}, "", window.location.pathname);
   }
   if (close && modal) {
     close.addEventListener("click", () => {

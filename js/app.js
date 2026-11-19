@@ -1,5 +1,6 @@
 import { defaultProducts, translations } from "./data.js";
 import { loadState, saveState, loadPreference, savePreference } from "./storage.js";
+import { initAuth } from "./auth.js";
 
 const stored = loadState(defaultProducts);
 let lang = loadPreference("vs_lang", "ru");
@@ -61,7 +62,5 @@ $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";renderCategories();renderProducts()};
 $("#productForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#productName").value.trim(),price=Number($("#productPrice").value),stock=Number($("#productStock").value),category=$("#productCategory").value,image=$("#productImage").value.trim();if(!name||price<1||stock<0)return;products.unshift({id:Date.now(),name,price,stock,category,image,tag:"NEW"});save();e.target.reset();renderProducts();renderAdmin();notify("Товар добавлен")});
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
-$("#accountBtn").onclick=()=>$("#accountModal").classList.add("open");$("#closeAccount").onclick=()=>$("#accountModal").classList.remove("open");$("#accountModal").onclick=e=>{if(e.target.id==="accountModal")$("#accountModal").classList.remove("open")};
-$("#saveAccount").onclick=()=>{savePreference("vs_customer",$("#customerName").value.trim());$("#accountModal").classList.remove("open");notify(t("saved"))};
-$("#customerName").value=loadPreference("vs_customer","");
 applyLanguage();
+initAuth({ notify });

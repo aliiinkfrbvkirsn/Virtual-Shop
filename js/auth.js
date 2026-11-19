@@ -71,7 +71,10 @@ export function initAuth({ notify = () => {} } = {}) {
     const { data: profile } = await supabase.from("profiles")
       .select("role, full_name").eq("id", user.id).maybeSingle();
     const role = profile?.role || "customer";
-    if (adminPanel) adminPanel.hidden = !["seller", "admin"].includes(role);
+    const canSell = ["seller", "admin"].includes(role);
+    if (adminPanel) adminPanel.hidden = !canSell;
+    const sellerOpen = $("#sellerOpen");
+    if (sellerOpen) sellerOpen.hidden = !canSell;
   }
 
   function renderSession(currentSession) {
@@ -104,6 +107,7 @@ export function initAuth({ notify = () => {} } = {}) {
   }
 
   $("#accountBtn").addEventListener("click", openModal);
+  $("#sellerOpen")?.addEventListener("click", () => { closeModal(); $("#adminPanel")?.scrollIntoView({ behavior: "smooth" }); });
   $("#closeAccount").addEventListener("click", closeModal);
   modal.addEventListener("click", event => {
     if (event.target === modal) closeModal();

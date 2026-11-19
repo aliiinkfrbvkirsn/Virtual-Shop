@@ -48,6 +48,7 @@ function renderCart(){
 }
 function openCart(open){$("#cartDrawer").classList.toggle("open",open);$("#backdrop").classList.toggle("open",open)}
 function renderAdmin(){
+ if (!$("#adminPanel")) return;
  $("#statProducts").textContent=products.length;
  $("#statOrders").textContent=orders.length;
  $("#statRevenue").textContent=money(orders.reduce((s,o)=>s+o.total,0));
@@ -72,10 +73,6 @@ $("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":"ru";savePreference("vs_lang",l
 $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";renderCategories();renderProducts()};
-$("#productForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#productName").value.trim(),price=Number($("#productPrice").value),stock=Number($("#productStock").value),category=$("#productCategory").value,image=$("#productImage").value.trim();if(!name||price<1||stock<0)return;if(editingProductId!==null){const p=products.find(x=>x.id===editingProductId);if(p)Object.assign(p,{name,price,stock,category,image});notify("Изменения сохранены")}else{products.unshift({id:Date.now(),name,price,stock,category,image,tag:"NEW"});notify("Товар добавлен")}editingProductId=null;e.target.reset();$("#sellerFormTitle").textContent="Добавить новый товар";$("#productSubmit").innerHTML="Добавить товар <span>＋</span>";$("#cancelProductEdit").hidden=true;save();renderProducts();renderAdmin()});
-$("#cancelProductEdit").onclick=()=>{editingProductId=null;$("#productForm").reset();$("#sellerFormTitle").textContent="Добавить новый товар";$("#productSubmit").innerHTML="Добавить товар <span>＋</span>";$("#cancelProductEdit").hidden=true};
-document.querySelectorAll("[data-seller-view]").forEach(b=>b.addEventListener("click",()=>showSellerView(b.dataset.sellerView)));
-document.querySelectorAll("[data-seller-go]").forEach(b=>b.addEventListener("click",()=>showSellerView(b.dataset.sellerGo)));
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
 applyLanguage();
 initAuth({ notify });

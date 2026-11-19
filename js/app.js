@@ -11,6 +11,7 @@ let cart = stored.cart;
 let orders = stored.orders;
 let activeCategory = "all";
 let toastTimer;
+let editingProductId = null;
 const money = n => `${Number(n).toLocaleString("ru-RU")} сом`;
 const t = key => translations[lang][key] || translations.ru[key];
 function save(){saveState({products,cart,orders});}
@@ -51,9 +52,19 @@ function renderAdmin(){
  $("#statOrders").textContent=orders.length;
  $("#statRevenue").textContent=money(orders.reduce((s,o)=>s+o.total,0));
  $("#statStock").textContent=products.reduce((s,p)=>s+p.stock,0);
- $("#inventoryList").innerHTML=products.map(p=>`<div class="inventory-row"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(categoryName(p.category))}</small><strong>${p.stock} шт.</strong><button class="delete-btn" data-delete="${p.id}" aria-label="${t("remove")}">×</button></div>`).join("")||`<div class="empty-state">${t("noProducts")}</div>`;
+ $("#sellerProductCount").textContent=products.length+" позиций";
+ $("#sellerProductCount2").textContent=products.length+" позиций";
+ const row=p=>`<div class="seller-item"><div class="seller-item-main"><div class="seller-item-thumb">${p.image?`<img src="${escapeAttr(p.image)}" alt="">`:escapeHtml(p.category.slice(0,1))}</div><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(categoryName(p.category))} · Остаток: ${p.stock}</small></div></div><span class="seller-item-price">${money(p.price)}</span><div class="seller-item-actions"><button type="button" data-edit="${p.id}">Изменить</button><button type="button" class="danger" data-delete="${p.id}">Удалить</button></div></div>`;
+ $("#inventoryList").innerHTML=products.map(row).join("")||`<div class="empty-state">Пока нет товаров. Добавьте первую позицию.</div>`;
+ $("#overviewProducts").innerHTML=products.slice(0,4).map(p=>`<div class="seller-item"><div class="seller-item-main"><div class="seller-item-thumb">${p.image?`<img src="${escapeAttr(p.image)}" alt="">`:escapeHtml(p.category.slice(0,1))}</div><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(categoryName(p.category))}</small></div></div><span class="seller-item-price">${money(p.price)}</span></div>`).join("")||`<div class="empty-state">Добавьте первый товар в каталог.</div>`;
+ $("#sellerOrders").innerHTML=orders.map(o=>`<div class="seller-order"><div><b>Заказ #${String(o.id).slice(-6)}</b><small>${new Date(o.date).toLocaleString("ru-RU")} · ${(o.items||[]).length} поз.</small><small>${(o.items||[]).map(x=>escapeHtml(x.name)+" × "+x.qty).join(", ")}</small></div><strong>${money(o.total)}</strong></div>`).join("")||`<div class="empty-state">Заказов пока нет.</div>`;
+ $("#stockTotal").textContent=products.reduce((s,p)=>s+p.stock,0);
+ $("#stockLow").textContent=products.filter(p=>p.stock<=5).length;
+ $("#sellerStockList").innerHTML=products.map(p=>`<div class="seller-item"><div class="seller-item-main"><div class="seller-item-thumb">${escapeHtml(p.category.slice(0,1))}</div><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(categoryName(p.category))}</small></div></div><span class="seller-item-price">${p.stock} шт.</span><span class="seller-count">${p.stock<=5?"Мало":"В наличии"}</span></div>`).join("")||`<div class="empty-state">Склад пуст.</div>`;
  document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Удалить этот товар?"))return;const id=Number(b.dataset.delete);products=products.filter(p=>p.id!==id);cart=cart.filter(x=>x.id!==id);save();renderProducts();renderCart();renderAdmin();notify(t("deleted"))});
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===Number(b.dataset.edit));if(!p)return;editingProductId=p.id;$("#productName").value=p.name;$("#productPrice").value=p.price;$("#productStock").value=p.stock;$("#productCategory").value=p.category;$("#productImage").value=p.image||"";$("#sellerFormTitle").textContent="Редактировать товар";$("#productSubmit").innerHTML="Сохранить изменения <span>↗</span>";$("#cancelProductEdit").hidden=false;showSellerView("products");$("#productName").focus()});
 }
+function showSellerView(view){document.querySelectorAll("[data-seller-panel]").forEach(p=>p.hidden=p.dataset.sellerPanel!==view);document.querySelectorAll("[data-seller-view]").forEach(b=>b.classList.toggle("active",b.dataset.sellerView===view));}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function escapeAttr(s){return escapeHtml(s)}
 $("#searchInput").addEventListener("input",renderProducts);
@@ -61,7 +72,10 @@ $("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":"ru";savePreference("vs_lang",l
 $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";renderCategories();renderProducts()};
-$("#productForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#productName").value.trim(),price=Number($("#productPrice").value),stock=Number($("#productStock").value),category=$("#productCategory").value,image=$("#productImage").value.trim();if(!name||price<1||stock<0)return;products.unshift({id:Date.now(),name,price,stock,category,image,tag:"NEW"});save();e.target.reset();renderProducts();renderAdmin();notify("Товар добавлен")});
+$("#productForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#productName").value.trim(),price=Number($("#productPrice").value),stock=Number($("#productStock").value),category=$("#productCategory").value,image=$("#productImage").value.trim();if(!name||price<1||stock<0)return;if(editingProductId!==null){const p=products.find(x=>x.id===editingProductId);if(p)Object.assign(p,{name,price,stock,category,image});notify("Изменения сохранены")}else{products.unshift({id:Date.now(),name,price,stock,category,image,tag:"NEW"});notify("Товар добавлен")}editingProductId=null;e.target.reset();$("#sellerFormTitle").textContent="Добавить новый товар";$("#productSubmit").innerHTML="Добавить товар <span>＋</span>";$("#cancelProductEdit").hidden=true;save();renderProducts();renderAdmin()});
+$("#cancelProductEdit").onclick=()=>{editingProductId=null;$("#productForm").reset();$("#sellerFormTitle").textContent="Добавить новый товар";$("#productSubmit").innerHTML="Добавить товар <span>＋</span>";$("#cancelProductEdit").hidden=true};
+document.querySelectorAll("[data-seller-view]").forEach(b=>b.addEventListener("click",()=>showSellerView(b.dataset.sellerView)));
+document.querySelectorAll("[data-seller-go]").forEach(b=>b.addEventListener("click",()=>showSellerView(b.dataset.sellerGo)));
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
 applyLanguage();
 initAuth({ notify });

@@ -1,3 +1,4 @@
+const $ = selector => document.querySelector(selector);
 import { defaultProducts, translations } from "./data.js";
 import { loadState, saveState, loadPreference, savePreference } from "./storage.js";
 import { initAuth } from "./auth.js";

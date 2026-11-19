@@ -105,6 +105,7 @@ $("#productForm").addEventListener("submit", async event => {
     notify("Проверьте название, цену и остаток"); return;
   }
   const submit = $("#productSubmit");
+  const wasEditing = editingProductId !== null;
   submit.disabled = true;
   try {
     const payload = { name, price, stock, category, image_url, is_active: true };
@@ -114,7 +115,7 @@ $("#productForm").addEventListener("submit", async event => {
     if (result.error) throw result.error;
     resetProductForm();
     await loadData();
-    notify(editingProductId ? "Товар обновлён" : "Товар добавлен");
+    notify(wasEditing ? "Товар обновлён" : "Товар добавлен");
   } catch (error) {
     notify("Не удалось сохранить товар: " + (error.message || "ошибка"));
   } finally {

@@ -13,3 +13,24 @@ footer{background:var(--dark);color:var(--white);padding:35px 7%;display:flex;al
 @media(max-width:900px){.hero-art{right:-4%;opacity:.7;scale:.85}.hero-copy{max-width:55%}.product-grid{grid-template-columns:repeat(3,1fr)}.admin-tools{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.topbar{height:65px;padding:0 4%;gap:10px}.brand{font-size:16px}.brand-mark{width:29px;height:29px}.search-wrap{width:auto;flex:1;padding:0 10px}.search-wrap input{font-size:11px}.top-actions{gap:5px}.icon-btn,.avatar{width:34px;height:34px;font-size:11px}.hero{margin:14px 3% 0;min-height:480px;padding:45px 7%;align-items:flex-start}.hero-copy{max-width:100%}.hero h1{font-size:58px}.hero p{max-width:300px}.hero-art{width:250px;height:250px;top:auto;bottom:-35px;right:-35px;transform:none;opacity:.55}.hero-disc{width:145px;height:145px;top:55px;left:55px}.hero-disc span{font-size:55px}.orbit{inset:8px}.card-top{right:0;top:35px}.card-bottom{left:0;bottom:35px}.hero-index{bottom:18px}.benefits{margin:0 5%;gap:10px;padding:20px 0}.benefits div{grid-template-columns:1fr;gap:5px}.benefits div>span{grid-row:auto;font-size:20px}.benefits b{font-size:10px}.benefits small{font-size:9px}.section{padding:55px 5%}.section-head{align-items:start}.section h2{font-size:34px}.product-grid{grid-template-columns:repeat(2,1fr);gap:10px}.product-image{height:155px}.product-info{padding:11px}.product-info h3{font-size:12px}.product-price{font-size:14px}.promo{margin:0 3%;padding:35px 7%;min-height:250px}.promo-symbol{font-size:130px;position:absolute;right:-10px;bottom:0;opacity:.65}.promo>div:first-child{position:relative;z-index:1}.stats{gap:8px}.stat-card{padding:15px}.stat-card strong{font-size:23px}.product-form{grid-template-columns:1fr}.product-form .wide{grid-column:auto}.inventory-row{grid-template-columns:1fr 70px 60px 32px;font-size:10px}footer{padding:30px 5%;gap:12px}footer p{flex-basis:100%;order:3}.demo-label{font-size:8px}.search-wrap span{font-size:18px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Supabase account and authentication */
+.auth-card{max-height:min(90vh,760px);overflow-y:auto}
+.auth-card .eyebrow{margin-bottom:18px}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:#e3e5dc;border-radius:12px;margin:20px 0}
+.auth-tab{border:0;background:transparent;color:var(--muted);border-radius:9px;padding:11px;font-size:12px;font-weight:800}
+.auth-tab.active{background:var(--dark);color:var(--accent)}
+.auth-card form{display:grid;gap:12px}
+.auth-card form label{margin:0}
+.auth-card form .primary-btn{width:100%;margin-top:6px}
+.auth-message{min-height:18px;margin:12px 0 0!important;font-size:11px!important}
+.auth-message.error{color:#a33b32!important}
+.auth-message.success{color:#526b2c!important}
+.auth-switch{display:block;margin:14px auto 0;border:0;background:none;color:#566b32;font-size:11px;font-weight:800;text-decoration:underline}
+.auth-note{display:block;margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.auth-signed-in{display:grid;justify-items:center;gap:9px;padding:22px 0 8px}
+.auth-user-mark{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--accent);font:700 26px Oswald}
+.auth-signed-in strong{font-size:13px;overflow-wrap:anywhere}
+.auth-signed-in span{font-size:11px;color:var(--muted)}
+.auth-signed-in .primary-btn{width:100%;margin-top:12px}
+[hidden]{display:none!important}

@@ -107,7 +107,7 @@ export function initAuth({ notify = () => {} } = {}) {
   }
 
   $("#accountBtn").addEventListener("click", openModal);
-  $("#sellerOpen")?.addEventListener("click", () => { closeModal(); $("#adminPanel")?.scrollIntoView({ behavior: "smooth" }); });
+  $("#sellerOpen")?.addEventListener("click", event => { event.preventDefault(); window.location.href = "./seller.html"; });
   $("#closeAccount").addEventListener("click", closeModal);
   modal.addEventListener("click", event => {
     if (event.target === modal) closeModal();

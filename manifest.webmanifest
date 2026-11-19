@@ -1,14 +1,16 @@
 {
-  "id": "/Virtual-Shop/",
+  "id": "./",
   "name": "Virtual Shop",
   "short_name": "Virtual Shop",
   "description": "Ваш интернет-магазин",
-  "start_url": "/Virtual-Shop/",
-  "scope": "/Virtual-Shop/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#101014",
   "theme_color": "#7135f4",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icons/icon-192.png",
@@ -21,12 +23,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ]
 }

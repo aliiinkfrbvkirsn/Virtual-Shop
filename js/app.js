@@ -30,7 +30,7 @@ function renderCategories(){
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
-function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").replace(/[^\\p{L}\\p{N}]+/gu," ").trim()}
+function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
 function searchTokenMatches(queryToken, productToken){
  if(!queryToken||!productToken)return false;
  if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;
@@ -41,8 +41,8 @@ function searchTokenMatches(queryToken, productToken){
 function productMatchesQuery(product,query){
  const q=normalizeSearch(query);
  if(!q)return true;
- const queryTokens=q.split(/\\s+/).filter(Boolean);
- const productTokens=normalizeSearch(product.name+" "+categoryName(product.category)).split(/\\s+/).filter(Boolean);
+ const queryTokens=q.split(/\s+/).filter(Boolean);
+ const productTokens=normalizeSearch(product.name+" "+categoryName(product.category)).split(/\s+/).filter(Boolean);
  return queryTokens.every(token=>productTokens.some(candidate=>searchTokenMatches(token,candidate)));
 }
 function getSearchSuggestions(query){
@@ -109,8 +109,8 @@ function handleSearchKeydown(event){
  }
 }
 function renderProducts(){
- const q=$("#searchInput").value.trim().toLowerCase();
- const filtered=products.filter(p=>(activeCategory==="all"||p.category===activeCategory)&&(`${p.name} ${p.category}`).toLowerCase().includes(q));
+ const q=$("#searchInput").value.trim();
+ const filtered=products.filter(p=>(activeCategory==="all"||p.category===activeCategory)&&productMatchesQuery(p,q));
  $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(p.tag)}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(p.name)}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
  document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(Number(btn.dataset.add))));
 }

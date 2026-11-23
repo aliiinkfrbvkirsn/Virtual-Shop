@@ -97,3 +97,19 @@ footer{background:var(--dark);color:var(--white);padding:35px 7%;display:flex;al
 .seller-stock-summary{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:18px}
 @media(max-width:850px){.seller-layout{grid-template-columns:1fr}.seller-sidebar{position:static;min-height:0;display:flex;align-items:center;gap:5px;overflow-x:auto;padding:10px}.seller-side-label,.seller-sidebar-note{display:none}.seller-nav{width:auto;white-space:nowrap;margin:0;padding:11px 13px}.seller-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.seller-dashboard{padding:42px 4%}.seller-heading{align-items:flex-start;flex-direction:column}.seller-heading p{font-size:11px}.seller-layout{gap:13px}.seller-sidebar{margin:0 -1%;border-radius:12px}.seller-nav{font-size:10px;padding:10px 11px;gap:7px}.seller-nav span{font-size:15px;width:15px}.seller-view-head h3{font-size:27px}.seller-action{padding:11px 13px;font-size:10px}.seller-stats{gap:8px}.seller-stat{padding:13px}.seller-stat strong{font-size:23px;margin:10px 0 3px}.seller-welcome{padding:20px}.seller-welcome>b{font-size:65px}.seller-welcome p{font-size:10px;max-width:230px}.seller-form-card,.seller-table-card,.seller-latest{padding:15px;margin-top:13px}.seller-product-form{grid-template-columns:1fr;gap:11px}.seller-product-form .wide{grid-column:auto}.seller-item{grid-template-columns:minmax(0,1fr) auto;gap:8px}.seller-item-price{grid-column:1;grid-row:2;margin-left:53px}.seller-item-actions{grid-column:2;grid-row:1 / span 2;flex-direction:column}.seller-item-actions button{padding:9px}.seller-order{font-size:10px}}
+
+/* Live product search suggestions */
+.topbar{position:relative;z-index:30}
+.search-wrap{position:relative;z-index:31}
+.search-suggestions{position:absolute;top:calc(100% + 10px);left:0;right:0;max-height:min(420px,65vh);overflow:auto;background:#fff;border:1px solid #e1e5d9;border-radius:16px;padding:7px;box-shadow:0 18px 45px #20271d24;z-index:80}
+.search-suggestions[hidden]{display:none}
+.search-suggestion{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border:0;border-radius:10px;background:transparent;text-align:left;color:var(--ink);cursor:pointer}
+.search-suggestion:hover,.search-suggestion[aria-selected="true"]{background:#f0f3e9}
+.suggestion-icon{width:38px;height:38px;flex:0 0 38px;border-radius:9px;background:#e9eddf;color:#84946b;display:grid;place-items:center;overflow:hidden;font:600 17px Oswald}
+.suggestion-icon img{width:100%;height:100%;object-fit:cover}
+.suggestion-copy{display:grid;gap:3px;min-width:0;flex:1}
+.suggestion-copy b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.suggestion-copy small{font-size:9px;color:#858b7d}
+.suggestion-price{font-size:10px;font-weight:800;white-space:nowrap}
+.search-suggestion-empty{padding:16px 10px;text-align:center;color:#7e8576;font-size:11px}
+@media(max-width:620px){.search-suggestions{top:calc(100% + 7px);max-height:55vh;border-radius:13px;padding:5px}.search-suggestion{padding:9px;gap:8px}.suggestion-icon{width:34px;height:34px;flex-basis:34px}.suggestion-copy b{font-size:10px}.suggestion-price{font-size:9px}}

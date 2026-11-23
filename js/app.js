@@ -34,7 +34,7 @@ function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru")
 function getSearchSuggestions(query){
  const q=normalizeSearch(query);
  if(!q)return [];
- const words=q.split(/\\s+/).filter(Boolean);
+ const words=q.split(/\s+/).filter(Boolean);
  return products.map(product=>{
    const name=normalizeSearch(product.name), category=normalizeSearch(categoryName(product.category));
    const haystack=name+" "+category;

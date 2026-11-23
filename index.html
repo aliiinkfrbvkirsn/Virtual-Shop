@@ -16,7 +16,7 @@
     <a class="brand" href="#" aria-label="Virtual Shop">
       <span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span>
     </a>
-    <div class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Найти товары..." aria-label="Поиск товаров"></div>
+    <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Найти товары..." aria-label="Поиск товаров" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions"><div class="search-suggestions" id="searchSuggestions" role="listbox" hidden></div></div>
     <div class="top-actions">
       <button class="icon-btn" id="langBtn" aria-label="Сменить язык">KG</button>
       <button class="icon-btn cart-trigger" id="cartBtn" aria-label="Корзина">▢<b id="cartCount">0</b></button>
@@ -106,7 +106,7 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
-  <script type="module" src="./js/app.js?v=authfix20261119"></script>
+  <script type="module" src="./js/app.js?v=searchsuggest20261123"></script>
   <script>
 (() => {
   const button = document.getElementById("accountBtn");

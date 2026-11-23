@@ -1,4 +1,4 @@
-const CACHE_NAME = "virtual-shop-v9";
+const CACHE_NAME = "virtual-shop-v10";
 const FILES = [
   "./",
   "./index.html",

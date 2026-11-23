@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <meta name="theme-color" content="#7135f4">
   <title>Virtual Shop</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=searchfix20261123">
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -16,7 +16,7 @@
     <a class="brand" href="#" aria-label="Virtual Shop">
       <span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span>
     </a>
-    <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Найти товары..." aria-label="Поиск товаров" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions"><div class="search-suggestions" id="searchSuggestions" role="listbox" hidden></div></div>
+    <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Найти товары..." aria-label="Поиск товаров" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="product-search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions"><div class="search-suggestions" id="searchSuggestions" role="listbox" hidden></div></div>
     <div class="top-actions">
       <button class="icon-btn" id="langBtn" aria-label="Сменить язык">KG</button>
       <button class="icon-btn cart-trigger" id="cartBtn" aria-label="Корзина">▢<b id="cartCount">0</b></button>
@@ -106,7 +106,7 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
-  <script type="module" src="./js/app.js?v=searchsuggest20261123"></script>
+  <script type="module" src="./js/app.js?v=searchfix20261123"></script>
   <script>
 (() => {
   const button = document.getElementById("accountBtn");

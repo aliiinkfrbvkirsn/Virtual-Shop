@@ -113,3 +113,22 @@ footer{background:var(--dark);color:var(--white);padding:35px 7%;display:flex;al
 .suggestion-price{font-size:10px;font-weight:800;white-space:nowrap}
 .search-suggestion-empty{padding:16px 10px;text-align:center;color:#7e8576;font-size:11px}
 @media(max-width:620px){.search-suggestions{top:calc(100% + 7px);max-height:55vh;border-radius:13px;padding:5px}.search-suggestion{padding:9px;gap:8px}.suggestion-icon{width:34px;height:34px;flex-basis:34px}.suggestion-copy b{font-size:10px}.suggestion-price{font-size:9px}}
+
+/* Search autocomplete: mobile positioning and reliable visibility */
+.topbar{z-index:120!important;isolation:isolate}
+.search-wrap{position:relative!important;z-index:121!important;flex-shrink:1;min-width:0}
+.search-suggestions{position:absolute!important;display:block;top:calc(100% + 9px)!important;left:0!important;right:auto!important;width:max(100%,min(360px,calc(100vw - 24px)))!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box;max-height:min(360px,55vh)!important;overflow-y:auto!important;overscroll-behavior:contain;background:#fff!important;color:#252820!important;border:1px solid #dfe5d5!important;border-radius:15px!important;padding:6px!important;box-shadow:0 16px 38px rgba(20,28,15,.2)!important;z-index:999!important}
+.search-suggestions[hidden]{display:none!important}
+.search-suggestion{display:flex!important;width:100%!important;min-height:54px;box-sizing:border-box;align-items:center!important;gap:10px!important;padding:9px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#252820!important;text-align:left!important;white-space:normal!important}
+.search-suggestion:hover,.search-suggestion[aria-selected="true"]{background:#f0f4e8!important}
+.search-suggestion-empty{display:block!important;padding:13px 10px!important;color:#68705f!important;font-size:12px!important;line-height:1.45!important;white-space:normal!important}
+.suggestion-copy b{font-size:12px!important;line-height:1.35;white-space:normal!important}
+.suggestion-copy small{font-size:10px!important}
+.suggestion-price{font-size:11px!important;color:#303629!important}
+@media(max-width:620px){
+ .topbar{overflow:visible!important}
+ .search-wrap{width:auto!important;flex:1 1 120px!important}
+ .search-suggestions{top:calc(100% + 8px)!important;max-height:48vh!important;border-radius:12px!important}
+ .search-suggestion{min-height:50px!important;padding:8px!important}
+ .suggestion-copy b{font-size:11px!important}
+}

@@ -12,6 +12,7 @@ let orders = stored.orders;
 let activeCategory = "all";
 let toastTimer;
 let editingProductId = null;
+let activeSuggestionIndex = -1;
 const money = n => `${Number(n).toLocaleString("ru-RU")} сом`;
 const t = key => translations[lang][key] || translations.ru[key];
 function save(){saveState({products,cart,orders});}
@@ -28,6 +29,73 @@ function renderCategories(){
  const keys=["all","Техника","Одежда","Дом","Аксессуары"];
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
+}
+function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").trim()}
+function getSearchSuggestions(query){
+ const q=normalizeSearch(query);
+ if(!q)return [];
+ const words=q.split(/\\s+/).filter(Boolean);
+ return products.map(product=>{
+   const name=normalizeSearch(product.name), category=normalizeSearch(categoryName(product.category));
+   const haystack=name+" "+category;
+   const matched=words.every(word=>haystack.includes(word));
+   if(!matched)return null;
+   const score=name.startsWith(q)?0:name.includes(q)?1:category.startsWith(q)?2:3;
+   return {product,score};
+ }).filter(Boolean).sort((a,b)=>a.score-b.score||a.product.name.localeCompare(b.product.name,"ru")).slice(0,6).map(row=>row.product);
+}
+function hideSearchSuggestions(){
+ const list=$("#searchSuggestions");
+ if(!list)return;
+ list.hidden=true;list.innerHTML="";activeSuggestionIndex=-1;
+ $("#searchInput").setAttribute("aria-expanded","false");
+}
+function chooseSearchSuggestion(name){
+ $("#searchInput").value=name;
+ activeCategory="all";
+ renderCategories();
+ renderProducts();
+ hideSearchSuggestions();
+ $("#searchInput").focus();
+ $("#catalog").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderSearchSuggestions(){
+ const input=$("#searchInput"),list=$("#searchSuggestions");
+ if(!input||!list)return;
+ const query=input.value.trim();
+ if(!query){hideSearchSuggestions();return}
+ const matches=getSearchSuggestions(query);
+ if(!matches.length){
+   list.innerHTML='<div class="search-suggestion-empty">Ничего похожего не найдено</div>';
+ }else{
+   list.innerHTML=matches.map((product,index)=>`<button type="button" class="search-suggestion" role="option" aria-selected="${index===activeSuggestionIndex}" data-suggestion-index="${index}">
+     <span class="suggestion-icon">${product.image?`<img src="${escapeAttr(product.image)}" alt="">`:escapeHtml(String(product.category||"Т").slice(0,1))}</span>
+     <span class="suggestion-copy"><b>${escapeHtml(product.name)}</b><small>${escapeHtml(categoryName(product.category))}</small></span>
+     <span class="suggestion-price">${money(product.price)}</span>
+   </button>`).join("");
+ }
+ list.hidden=false;
+ input.setAttribute("aria-expanded","true");
+ list.querySelectorAll("[data-suggestion-index]").forEach(button=>{
+   button.addEventListener("pointerdown",event=>event.preventDefault());
+   button.addEventListener("click",()=>chooseSearchSuggestion(matches[Number(button.dataset.suggestionIndex)].name));
+ });
+}
+function handleSearchKeydown(event){
+ const list=$("#searchSuggestions");
+ if(event.key==="Escape"){hideSearchSuggestions();return}
+ if(list.hidden)return;
+ const options=[...list.querySelectorAll("[data-suggestion-index]")];
+ if(!options.length)return;
+ if(event.key==="ArrowDown"||event.key==="ArrowUp"){
+   event.preventDefault();
+   activeSuggestionIndex=(activeSuggestionIndex+(event.key==="ArrowDown"?1:-1)+options.length)%options.length;
+   options.forEach((option,index)=>option.setAttribute("aria-selected",String(index===activeSuggestionIndex)));
+   options[activeSuggestionIndex].scrollIntoView({block:"nearest"});
+ }else if(event.key==="Enter"&&activeSuggestionIndex>=0){
+   event.preventDefault();
+   options[activeSuggestionIndex].click();
+ }
 }
 function renderProducts(){
  const q=$("#searchInput").value.trim().toLowerCase();
@@ -68,11 +136,14 @@ function renderAdmin(){
 function showSellerView(view){document.querySelectorAll("[data-seller-panel]").forEach(p=>p.hidden=p.dataset.sellerPanel!==view);document.querySelectorAll("[data-seller-view]").forEach(b=>b.classList.toggle("active",b.dataset.sellerView===view));}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function escapeAttr(s){return escapeHtml(s)}
-$("#searchInput").addEventListener("input",renderProducts);
+$("#searchInput").addEventListener("input",()=>{activeSuggestionIndex=-1;renderProducts();renderSearchSuggestions()});
+$("#searchInput").addEventListener("focus",()=>{if($("#searchInput").value.trim())renderSearchSuggestions()});
+$("#searchInput").addEventListener("keydown",handleSearchKeydown);
+document.addEventListener("click",event=>{if(!event.target.closest(".search-wrap"))hideSearchSuggestions()});
 $("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":"ru";savePreference("vs_lang",lang);applyLanguage()};
 $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
-$("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";renderCategories();renderProducts()};
+$("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";hideSearchSuggestions();renderCategories();renderProducts()};
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
 applyLanguage();
 initAuth({ notify });

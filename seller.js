@@ -123,9 +123,22 @@ function render() {
   $("#inventoryList").innerHTML = products.map(productRow).join("") || '<div class="empty-state">Пока нет товаров. Добавьте первую позицию.</div>';
   $("#overviewProducts").innerHTML = products.slice(0,4).map(product => `<div class="seller-item"><div class="seller-item-main"><div class="seller-item-thumb">${product.image_url ? `<img src="${escapeHtml(product.image_url)}" alt="">` : escapeHtml(String(product.category || "Т").slice(0,1))}</div><div><b>${escapeHtml(product.name)}</b><small>${escapeHtml(product.category || "Другое")}</small></div></div><span class="seller-item-price">${money(product.price)}</span></div>`).join("") || '<div class="empty-state">Добавьте первый товар в каталог.</div>';
   $("#sellerOrders").innerHTML = orders.map(order => `<div class="seller-order"><div><b>Заказ #${escapeHtml(order.id.slice(-6))}</b><small>${new Date(order.date).toLocaleString("ru-RU")} · ${order.items.length} поз. · ${escapeHtml(order.status)}</small><small>${order.items.map(item => escapeHtml(item.name) + " × " + item.qty).join(", ")}</small></div><strong>${money(order.total)}</strong></div>`).join("") || '<div class="empty-state">Заказов пока нет.</div>';
+  const lowStockProducts = products.filter(product => Number(product.stock || 0) <= 5).sort((a,b) => Number(a.stock || 0) - Number(b.stock || 0));
   $("#stockTotal").textContent = totalStock;
-  $("#stockLow").textContent = products.filter(product => Number(product.stock || 0) <= 5).length;
-  $("#sellerStockList").innerHTML = products.map(product => `<div class="seller-item"><div class="seller-item-main"><div class="seller-item-thumb">${escapeHtml(String(product.category || "Т").slice(0,1))}</div><div><b>${escapeHtml(product.name)}</b><small>${escapeHtml(product.category || "Другое")}</small></div></div><span class="seller-item-price">${Number(product.stock || 0)} шт.</span><span class="seller-count">${Number(product.stock || 0) <= 5 ? "Мало" : "В наличии"}</span></div>`).join("") || '<div class="empty-state">Склад пуст.</div>';
+  $("#stockLow").textContent = lowStockProducts.length;
+  $("#quickStockTotal").textContent = totalStock;
+  $("#quickStockLow").textContent = lowStockProducts.length;
+  $("#warehouseQuickText").textContent = lowStockProducts.length ? "Есть товары, которые скоро закончатся." : "Все товары сейчас в достаточном количестве.";
+  $("#warehouseQuickList").innerHTML = lowStockProducts.slice(0,3).map(product => `<span class="warehouse-quick-chip"><i></i>${escapeHtml(product.name)} <b>${Number(product.stock || 0)} шт.</b></span>`).join("") || '<span class="warehouse-quick-chip">Критичных остатков нет</span>';
+  $("#sellerStockList").innerHTML = products.map(product => {
+    const low = Number(product.stock || 0) <= 5;
+    const image = product.image_url ? `<img src="${escapeHtml(product.image_url)}" alt="">` : escapeHtml(String(product.category || "Т").slice(0,1));
+    return `<article class="warehouse-stock-card ${low ? "low" : ""}">
+      <div class="warehouse-stock-icon">${image}</div>
+      <div class="warehouse-stock-info"><b>${escapeHtml(product.name)}</b><small>${escapeHtml(product.category || "Другое")}</small></div>
+      <div class="warehouse-stock-bottom"><strong class="warehouse-stock-qty">${Number(product.stock || 0)} шт.</strong><span class="warehouse-stock-status">${low ? "Мало" : "В наличии"}</span></div>
+    </article>`;
+  }).join("") || '<div class="warehouse-stock-empty">Склад пока пуст. Добавьте товары в каталог.</div>';
   document.querySelectorAll("[data-delete]").forEach(button => button.onclick = () => deleteProduct(button.dataset.delete));
   document.querySelectorAll("[data-edit]").forEach(button => button.onclick = () => editProduct(button.dataset.edit));
   renderAnalytics();

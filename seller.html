@@ -48,6 +48,56 @@ body{background:#f0f1e9}.seller-page-top{display:flex;align-items:center;justify
 .analytics-footnote{font-size:9px;line-height:1.6;color:#858b7d;margin:12px 2px}
 @media(max-width:850px){.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.analytics-kpis{gap:8px}.analytics-kpi{padding:13px}.analytics-kpi strong{font-size:20px}.analytics-two-col{grid-template-columns:1fr;gap:0}.analytics-toolbar{gap:5px}.analytics-toolbar button{padding:9px 11px;font-size:9px}.analytics-chart{gap:2px;height:185px}.analytics-bar-track{height:150px}.analytics-bar-col small{font-size:7px}}
+
+/* Warehouse visual refresh */
+.warehouse-quick-card{margin:0 0 18px;padding:20px;border-radius:18px;background:linear-gradient(125deg,#20271d,#34412b);color:#fff;box-shadow:0 12px 28px rgba(35,48,27,.12)}
+.warehouse-quick-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.warehouse-quick-top .seller-kicker{color:#b8cb9b}
+.warehouse-quick-top h4{font:600 22px Oswald;margin:6px 0}
+.warehouse-quick-top p{font-size:10px;color:#c5cdbd;margin:0;line-height:1.6}
+.warehouse-quick-top button{flex:0 0 auto;border:0;border-radius:30px;padding:11px 14px;background:#c5e47b;color:#26311d;font-size:10px;font-weight:900}
+.warehouse-quick-top button span{margin-left:6px}
+.warehouse-quick-metrics{display:flex;gap:30px;margin:18px 0 0;padding-top:14px;border-top:1px solid #46523d}
+.warehouse-quick-metrics div{display:grid;gap:3px}
+.warehouse-quick-metrics strong{font:600 25px Oswald;color:#d4f09a}
+.warehouse-quick-metrics span{font-size:9px;color:#c5cdbd}
+.warehouse-quick-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.warehouse-quick-chip{display:flex;align-items:center;gap:7px;max-width:100%;padding:7px 10px;border-radius:9px;background:#3a4632;color:#f4f6ee;font-size:9px}
+.warehouse-quick-chip i{width:7px;height:7px;border-radius:50%;background:#efb16c;flex:0 0 7px}
+.warehouse-quick-chip b{color:#f5c48d}
+.warehouse-stock-panel{margin-top:18px;padding:20px;border-radius:18px;background:#e7ecdc;border:1px solid #d6dfc8}
+.warehouse-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.warehouse-panel-heading h4{font:600 25px Oswald;margin:5px 0}
+.warehouse-panel-heading p{font-size:10px;color:#737d68;margin:0}
+.warehouse-live-pill{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:30px;background:#d5e5c1;color:#536b3d;font-size:9px;font-weight:800;white-space:nowrap}
+.warehouse-live-pill i{width:6px;height:6px;border-radius:50%;background:#77a64c}
+.warehouse-stock-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.warehouse-stock-card{display:grid;grid-template-columns:42px minmax(0,1fr);gap:10px;align-items:center;padding:13px;border:1px solid #e0e6d7;border-radius:13px;background:#fff;min-width:0;box-shadow:0 3px 10px rgba(40,55,30,.035)}
+.warehouse-stock-card.low{border-color:#efd4b7;background:#fffaf5}
+.warehouse-stock-icon{width:42px;height:42px;border-radius:11px;background:#edf2e5;color:#718553;display:grid;place-items:center;font:600 19px Oswald;overflow:hidden}
+.warehouse-stock-icon img{width:100%;height:100%;object-fit:cover}
+.warehouse-stock-info{min-width:0}
+.warehouse-stock-info b{display:block;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+.warehouse-stock-info small{display:block;color:#8b9184;font-size:9px;margin-top:3px}
+.warehouse-stock-bottom{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px solid #edf0e8}
+.warehouse-stock-qty{font:600 17px Oswald;color:#31372b}
+.warehouse-stock-status{padding:5px 8px;border-radius:30px;background:#edf4e4;color:#5c783e;font-size:8px;font-weight:900}
+.warehouse-stock-card.low .warehouse-stock-status{background:#faeadb;color:#a26435}
+.warehouse-stock-empty{grid-column:1/-1;padding:22px;text-align:center;border-radius:12px;background:#fff;color:#7e8872;font-size:11px}
+@media(max-width:620px){
+ .warehouse-quick-card{padding:16px;margin-bottom:14px}
+ .warehouse-quick-top{align-items:flex-start;flex-direction:column}
+ .warehouse-quick-top button{width:100%}
+ .warehouse-quick-metrics{gap:25px}
+ .warehouse-stock-panel{padding:14px;background:#e5eadb}
+ .warehouse-panel-heading{align-items:flex-start}
+ .warehouse-panel-heading h4{font-size:22px}
+ .warehouse-stock-grid{grid-template-columns:1fr;gap:8px}
+ .warehouse-stock-card{grid-template-columns:42px minmax(0,1fr) auto;gap:10px;padding:11px}
+ .warehouse-stock-bottom{grid-column:3;grid-row:1;display:flex;align-items:flex-end;flex-direction:column;justify-content:center;border:0;padding:0}
+ .warehouse-stock-qty{font-size:16px}
+ .warehouse-stock-status{font-size:7px}
+}
 </style></head><body>
 <header class="seller-page-top"><a class="brand" href="./" aria-label="Вернуться в Virtual Shop"><span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span></a>
 <div class="seller-page-actions"><a href="./">← Вернуться в магазин</a><button id="sellerLogout" type="button">Выйти</button></div></header>
@@ -75,6 +125,11 @@ body{background:#f0f1e9}.seller-page-top{display:flex;align-items:center;justify
               <article class="seller-stat"><span>Заказы</span><strong id="statOrders">0</strong><small>Оформлено</small><i>▤</i></article>
               <article class="seller-stat"><span>Сумма заказов</span><strong id="statRevenue">0 сом</strong><small>Общая сумма</small><i>↗</i></article>
               <article class="seller-stat"><span>На складе</span><strong id="statStock">0</strong><small>Единиц товара</small><i>⌂</i></article>
+            </div>
+            <div class="warehouse-quick-card" id="warehouseQuickCard">
+              <div class="warehouse-quick-top"><div><span class="seller-kicker">СКЛАД / БЫСТРЫЙ ДОСТУП</span><h4>Остатки товаров</h4><p id="warehouseQuickText">Проверяйте наличие товаров в один клик.</p></div><button type="button" data-seller-go="inventory">Открыть склад <span>↗</span></button></div>
+              <div class="warehouse-quick-metrics"><div><strong id="quickStockTotal">0</strong><span>единиц на складе</span></div><div><strong id="quickStockLow">0</strong><span>заканчиваются</span></div></div>
+              <div id="warehouseQuickList" class="warehouse-quick-list"></div>
             </div>
             <div class="seller-welcome"><div><span>VIRTUAL SHOP / SELLER</span><h4>Ваш магазин. Ваши правила.</h4><p>Добавляйте новые позиции, следите за остатками и проверяйте заказы.</p></div><b>V<span>↗</span></b></div>
             <div class="seller-latest"><div class="seller-block-head"><h4>Последние товары</h4><button class="seller-link" data-seller-go="products">Все товары ↗</button></div><div id="overviewProducts"></div></div>
@@ -110,9 +165,9 @@ body{background:#f0f1e9}.seller-page-top{display:flex;align-items:center;justify
           <section class="seller-view" data-seller-panel="inventory" hidden>
             <div class="seller-view-head"><div><span class="seller-kicker">УЧЁТ ТОВАРОВ</span><h3>Склад</h3></div></div>
             <div class="seller-stats seller-stock-summary"><article class="seller-stat"><span>Всего единиц</span><strong id="stockTotal">0</strong><small>Все категории</small></article><article class="seller-stat"><span>Заканчиваются</span><strong id="stockLow">0</strong><small>5 или меньше</small></article></div>
-            <div class="seller-table-card"><div class="seller-block-head"><h4>Остатки на складе</h4></div><div id="sellerStockList"></div></div>
+            <div class="warehouse-stock-panel"><div class="warehouse-panel-heading"><div><span class="seller-kicker">УЧЁТ И НАЛИЧИЕ</span><h4>Остатки на складе</h4><p>Каждый товар отображается отдельной карточкой</p></div><span class="warehouse-live-pill"><i></i> Обновлено</span></div><div id="sellerStockList" class="warehouse-stock-grid"></div></div>
           </section>
         </div>
       </div>
     </section></div></main>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><script type="module" src="./seller.js?v=20261123a"></script></body></html>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><script type="module" src="./seller.js?v=20261123b"></script></body></html>

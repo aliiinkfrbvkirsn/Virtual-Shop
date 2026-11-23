@@ -30,17 +30,28 @@ function renderCategories(){
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
-function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").trim()}
+function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").replace(/[^\\p{L}\\p{N}]+/gu," ").trim()}
+function searchTokenMatches(queryToken, productToken){
+ if(!queryToken||!productToken)return false;
+ if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;
+ let common=0;
+ while(common<queryToken.length&&common<productToken.length&&queryToken[common]===productToken[common])common++;
+ return common>=Math.min(4,queryToken.length,productToken.length);
+}
+function productMatchesQuery(product,query){
+ const q=normalizeSearch(query);
+ if(!q)return true;
+ const queryTokens=q.split(/\\s+/).filter(Boolean);
+ const productTokens=normalizeSearch(product.name+" "+categoryName(product.category)).split(/\\s+/).filter(Boolean);
+ return queryTokens.every(token=>productTokens.some(candidate=>searchTokenMatches(token,candidate)));
+}
 function getSearchSuggestions(query){
  const q=normalizeSearch(query);
- if(!q)return [];
- const words=q.split(/\s+/).filter(Boolean);
+ if(q.length<2)return [];
  return products.map(product=>{
-   const name=normalizeSearch(product.name), category=normalizeSearch(categoryName(product.category));
-   const haystack=name+" "+category;
-   const matched=words.every(word=>haystack.includes(word));
-   if(!matched)return null;
-   const score=name.startsWith(q)?0:name.includes(q)?1:category.startsWith(q)?2:3;
+   if(!productMatchesQuery(product,q))return null;
+   const name=normalizeSearch(product.name);
+   const score=name.startsWith(q)?0:name.includes(q)?1:2;
    return {product,score};
  }).filter(Boolean).sort((a,b)=>a.score-b.score||a.product.name.localeCompare(b.product.name,"ru")).slice(0,6).map(row=>row.product);
 }

@@ -112,18 +112,18 @@ function renderProducts(){
  const q=$("#searchInput").value.trim();
  const filtered=products.filter(p=>(activeCategory==="all"||p.category===activeCategory)&&productMatchesQuery(p,q));
  $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(p.tag)}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(p.name)}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
- document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(Number(btn.dataset.add))));
+ document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(btn.dataset.add)));
 }
 function categoryName(c){if(lang==="ru")return c;return ({Техника:"Техника",Одежда:"Кийим",Дом:"Үй",Аксессуары:"Аксессуарлар"})[c]||c}
-function addToCart(id){const p=products.find(x=>x.id===id);if(!p||p.stock<1){notify("Нет товара в наличии");return}const row=cart.find(x=>x.id===id);if(row)row.qty=Math.min(row.qty+1,p.stock);else cart.push({id,qty:1});save();renderCart();renderAdmin();notify(t("added"))}
-function changeQty(id,delta){const row=cart.find(x=>x.id===id),p=products.find(x=>x.id===id);if(!row)return;row.qty+=delta;if(row.qty<1)cart=cart.filter(x=>x.id!==id);if(p&&row.qty>p.stock)row.qty=p.stock;save();renderCart()}
+function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p||p.stock<1){notify("Нет товара в наличии");return}const row=cart.find(x=>String(x.id)===String(id));if(row)row.qty=Math.min(row.qty+1,p.stock);else cart.push({id,qty:1});save();renderCart();renderAdmin();notify(t("added"))}
+function changeQty(id,delta){const row=cart.find(x=>String(x.id)===String(id)),p=products.find(x=>String(x.id)===String(id));if(!row)return;row.qty+=delta;if(row.qty<1)cart=cart.filter(x=>x.id!==id);if(p&&row.qty>p.stock)row.qty=p.stock;save();renderCart()}
 function renderCart(){
  const count=cart.reduce((s,x)=>s+x.qty,0);$("#cartCount").textContent=count;
  const rows=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?`<div class="cart-row"><div><b>${escapeHtml(p.name)}</b><small>${money(p.price)} × ${row.qty}</small></div><div class="quantity"><button data-minus="${p.id}">−</button><b>${row.qty}</b><button data-plus="${p.id}">+</button></div></div>`:""}).join("");
  $("#cartItems").innerHTML=rows||`<div class="empty-state">${t("emptyCart")}</div>`;
  $("#cartTotal").textContent=money(cart.reduce((sum,row)=>{const p=products.find(x=>x.id===row.id);return sum+(p?p.price*row.qty:0)},0));
- document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>changeQty(Number(b.dataset.minus),-1));
- document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>changeQty(Number(b.dataset.plus),1));
+ document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>changeQty(b.dataset.minus,-1));
+ document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>changeQty(b.dataset.plus,1));
 }
 function openCart(open){$("#cartDrawer").classList.toggle("open",open);$("#backdrop").classList.toggle("open",open)}
 function renderAdmin(){
@@ -156,5 +156,69 @@ $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(fa
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";hideSearchSuggestions();renderCategories();renderProducts()};
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
+async function initPublicCatalog(){
+ try{
+  const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2.119.1");
+  const db=createClient("https://qmtyidlsoeotjfyhnghj.supabase.co","sb_publishable_oVfg8lt1cr-yy0biWYsRng_T-yfROHC",{
+   auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
+  });
+  const {data:sessionResult}=await db.auth.getSession();
+  const user=sessionResult?.session?.user;
+  if(user){
+   const {data:profile}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+   if(["seller","admin"].includes(profile?.role)){
+    const {data:ownRows,error:ownError}=await db.from("products").select("name").eq("seller_id",user.id);
+    if(ownError)throw ownError;
+    const known=new Set((ownRows||[]).map(row=>normalizeSearch(row.name)));
+    const missing=products.filter(product=>!known.has(normalizeSearch(product.name))&&String(product.name||"").trim());
+    if(missing.length){
+     const payload=missing.map(product=>({
+      seller_id:user.id,
+      name:String(product.name).trim(),
+      category:product.category||"Другое",
+      description:product.description||"",
+      price:Number(product.price)||0,
+      stock:Math.max(0,Number(product.stock)||0),
+      image_url:product.image||product.image_url||null,
+      tag:product.tag||"",
+      is_active:true
+     }));
+     const {error:insertError}=await db.from("products").insert(payload);
+     if(insertError)throw insertError;
+    }
+   }
+  }
+  const {data:rows,error}=await db.from("products")
+   .select("id,name,category,description,price,stock,image_url,tag,is_active,created_at")
+   .eq("is_active",true).order("created_at",{ascending:false});
+  if(error)throw error;
+  if(!Array.isArray(rows))return;
+  const previousProducts=products;
+  const previousCart=cart;
+  products=rows.map(row=>({
+   id:row.id,
+   name:row.name,
+   category:row.category||"Другое",
+   description:row.description||"",
+   price:Number(row.price)||0,
+   stock:Number(row.stock)||0,
+   image:row.image_url||"",
+   tag:row.tag||""
+  }));
+  cart=previousCart.map(item=>{
+   const previous=previousProducts.find(product=>String(product.id)===String(item.id));
+   const match=previous&&rows.find(row=>normalizeSearch(row.name)===normalizeSearch(previous.name));
+   return match?{...item,id:match.id}:item;
+  }).filter(item=>products.some(product=>String(product.id)===String(item.id)));
+  save();
+  renderProducts();
+  renderCart();
+  renderAdmin();
+ }catch(error){
+  console.error("Virtual Shop: общий каталог не загрузился",error);
+ }
+}
+
 applyLanguage();
 initAuth({ notify });
+void initPublicCatalog();

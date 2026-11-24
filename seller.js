@@ -145,7 +145,7 @@ function render() {
 }
 async function loadData() {
   const { data: productRows, error: productsError } = await supabase.from("products")
-    .select("id,name,category,price,stock,image_url,tag,is_active,created_at")
+    .select("id,name,name_kg,name_en,category,description,description_kg,description_en,price,stock,image_url,tag,is_active,created_at")
     .eq("seller_id", currentUser.id).eq("is_active", true).order("created_at", { ascending: false });
   if (productsError) throw productsError;
   products = productRows || [];
@@ -196,6 +196,7 @@ function editProduct(id) {
   $("#productPrice").value = product.price || "";
   $("#productStock").value = product.stock ?? 0;
   $("#productCategory").value = product.category || "Другое";
+  $("#productDescription").value = product.description || "";
   $("#productImage").value = product.image_url || "";
   $("#sellerFormTitle").textContent = "Редактировать товар";
   $("#productSubmit").textContent = "Сохранить изменения";
@@ -217,6 +218,7 @@ $("#productForm").addEventListener("submit", async event => {
   const stock = Number($("#productStock").value);
   const category = $("#productCategory").value;
   const image_url = $("#productImage").value.trim() || null;
+  const description = $("#productDescription").value.trim();
   if (!name || !Number.isFinite(price) || price < 1 || !Number.isInteger(stock) || stock < 0) {
     notify("Проверьте название, цену и остаток"); return;
   }
@@ -224,7 +226,10 @@ $("#productForm").addEventListener("submit", async event => {
   const wasEditing = editingProductId !== null;
   submit.disabled = true;
   try {
-    const payload = { name, price, stock, category, image_url, is_active: true };
+    const { data: translated, error: translationError } = await supabase.functions.invoke("translate-product", { body: { name, description } });
+    if (translationError) throw new Error("Не удалось перевести товар: " + translationError.message);
+    if (!translated?.name_kg || !translated?.name_en) throw new Error(translated?.error === "translation_not_configured" ? "Автопереводчик ещё не подключён. Добавьте OPENAI_API_KEY в Supabase → Edge Functions → Secrets." : "Переводчик не вернул все переводы. Попробуйте ещё раз.");
+    const payload = { name, description, name_kg: translated.name_kg, name_en: translated.name_en, description_kg: translated.description_kg || "", description_en: translated.description_en || "", price, stock, category, image_url, is_active: true };
     const result = editingProductId
       ? await supabase.from("products").update(payload).eq("id", editingProductId).eq("seller_id", currentUser.id)
       : await supabase.from("products").insert({ ...payload, seller_id: currentUser.id });

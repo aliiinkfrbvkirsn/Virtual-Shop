@@ -35,7 +35,7 @@ function renderCategories(){
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
 function productDisplayName(product){const field=lang==="kg"?"name_kg":"name_en";return (lang==="ru"?product.name:product[field]) || productTranslations[lang]?.[product.name] || product.name}
-function productDisplayDescription(product){const field=lang==="kg"?"description_kg":"description_en";return lang==="ru"?product.description||"":product[field]||product.description||""}\nfunction productDisplayTag(tag){if(!tag)return "";const tags={"ХИТ":{kg:"ХИТ",en:"BESTSELLER"},"ВЫБОР":{kg:"ТАНДОО",en:"PICK"}};return tags[tag]?.[lang]||tag}\nfunction normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
+function productDisplayDescription(product){const field=lang==="kg"?"description_kg":"description_en";return lang==="ru"?product.description||"":product[field]||""}\nfunction productDisplayTag(tag){if(!tag)return "";const tags={"ХИТ":{kg:"ХИТ",en:"BESTSELLER"},"ВЫБОР":{kg:"ТАНДОО",en:"PICK"}};return tags[tag]?.[lang]||tag}\nfunction normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
 function searchTokenMatches(queryToken, productToken){
  if(!queryToken||!productToken)return false;
  if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;

@@ -146,7 +146,7 @@ function render() {
 async function loadData() {
   const { data: productRows, error: productsError } = await supabase.from("products")
     .select("id,name,category,price,stock,image_url,tag,is_active,created_at")
-    .eq("seller_id", currentUser.id).order("created_at", { ascending: false });
+    .eq("seller_id", currentUser.id).eq("is_active", true).order("created_at", { ascending: false });
   if (productsError) throw productsError;
   products = productRows || [];
 
@@ -173,7 +173,7 @@ async function deleteProduct(id) {
   if (button) button.disabled = true;
   try {
     const { data: deletedRows, error } = await supabase.from("products")
-      .delete().eq("id", id).eq("seller_id", currentUser.id).select("id");
+      .update({ is_active: false }).eq("id", id).eq("seller_id", currentUser.id).eq("is_active", true).select("id");
     if (error) throw error;
     if (!deletedRows?.length) {
       notify("Товар не удалён: запись не найдена или нет прав");

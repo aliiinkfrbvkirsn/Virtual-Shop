@@ -227,7 +227,7 @@ $("#productForm").addEventListener("submit", async event => {
   submit.disabled = true;
   try {
     const { data: translated, error: translationError } = await supabase.functions.invoke("translate-product", { body: { name, description } });
-    if (translationError) throw new Error("Не удалось перевести товар: " + translationError.message);
+    if (translationError) throw new Error("Автопереводчик недоступен. Проверьте OPENAI_API_KEY в Supabase → Edge Functions → Secrets. Детали: " + translationError.message);
     if (!translated?.name_kg || !translated?.name_en) throw new Error(translated?.error === "translation_not_configured" ? "Автопереводчик ещё не подключён. Добавьте OPENAI_API_KEY в Supabase → Edge Functions → Secrets." : "Переводчик не вернул все переводы. Попробуйте ещё раз.");
     const payload = { name, description, name_kg: translated.name_kg, name_en: translated.name_en, description_kg: translated.description_kg || "", description_en: translated.description_en || "", price, stock, category, image_url, is_active: true };
     const result = editingProductId

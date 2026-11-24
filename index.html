@@ -73,7 +73,7 @@
     <a class="brand" href="#"><span class="brand-mark">V</span><span>virtual<span class="brand-light">shop</span></span></a>
     <p data-i18n="footerText">Платформа покупок и управления торговлей.</p>
     <div class="footer-contact">
-      <span class="footer-contact-title">СВЯЗАТЬСЯ СО МНОЙ</span>
+      <span class="footer-contact-title" data-i18n="footerContactTitle">СВЯЗАТЬСЯ СО МНОЙ</span>
       <a href="https://instagram.com/aribarikali" target="_blank" rel="noopener noreferrer" aria-label="Instagram @aribarikali">
         <span class="footer-social-icon" aria-hidden="true">◎</span><span><small>INSTAGRAM</small><b>@aribarikali</b></span>
       </a>
@@ -95,33 +95,33 @@
     <div class="modal-card auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
       <button class="close-btn modal-close" id="closeAccount" type="button" aria-label="Закрыть">×</button>
       <div class="eyebrow"><i></i> VIRTUAL SHOP / ACCOUNT</div>
-      <h2 id="authTitle">Войти в аккаунт</h2>
-      <p id="authDescription">Войдите или создайте аккаунт, чтобы пользоваться личным кабинетом.</p>
+      <h2 id="authTitle" data-i18n="loginTitle">Войти в аккаунт</h2>
+      <p id="authDescription" data-i18n="loginDescription">Войдите или создайте аккаунт, чтобы пользоваться личным кабинетом.</p>
       <div class="auth-tabs" id="authTabs">
-        <button type="button" class="auth-tab active" data-auth-mode="login">Вход</button>
-        <button type="button" class="auth-tab" data-auth-mode="signup">Регистрация</button>
+        <button type="button" class="auth-tab active" data-auth-mode="login" data-i18n="loginTab">Вход</button>
+        <button type="button" class="auth-tab" data-auth-mode="signup" data-i18n="signupTab">Регистрация</button>
       </div>
       <form id="authForm" novalidate>
-        <label id="authNameField" hidden><span>Ваше имя</span><input id="authName" name="name" autocomplete="name" maxlength="80" placeholder="Как к вам обращаться"></label>
-        <label><span>Электронная почта</span><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com"></label>
-        <label><span>Пароль</span><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Не менее 8 символов"></label>
-        <button class="primary-btn" id="authSubmit" type="submit">Войти <span>↗</span></button>
+        <label id="authNameField" hidden><span data-i18n="yourNameField">Ваше имя</span><input id="authName" name="name" autocomplete="name" maxlength="80" placeholder="Как к вам обращаться" data-i18n-placeholder="namePlaceholder"></label>
+        <label><span data-i18n="emailField">Электронная почта</span><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com"></label>
+        <label><span data-i18n="passwordField">Пароль</span><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Не менее 8 символов" data-i18n-placeholder="passwordPlaceholder"></label>
+        <button class="primary-btn" id="authSubmit" type="submit" data-i18n="signIn">Войти <span>↗</span></button>
       </form>
       <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
       <div class="auth-signed-in" id="authSignedIn" hidden>
         <div class="auth-user-mark" id="authUserMark">A</div>
         <strong id="authUserEmail"></strong>
-        <span>Аккаунт подключён</span>
-        <a class="primary-btn" id="sellerOpen" href="./seller.html" hidden>Открыть комнату продавца ↗</a>
-        <button class="primary-btn" id="authSignOut" type="button">Выйти из аккаунта</button>
+        <span data-i18n="accountConnected">Аккаунт подключён</span>
+        <a class="primary-btn" id="sellerOpen" href="./seller.html" hidden data-i18n="openSeller">Открыть комнату продавца ↗</a>
+        <button class="primary-btn" id="authSignOut" type="button" data-i18n="signOut">Выйти из аккаунта</button>
       </div>
-      <button class="auth-switch" id="authSwitch" type="button">Нет аккаунта? Зарегистрироваться</button>
-      <small class="auth-note">При регистрации мы отправим письмо подтверждения на указанную вами почту. Пароль не сохраняется в коде сайта.</small>
+      <button class="auth-switch" id="authSwitch" type="button" data-i18n="switchToSignup">Нет аккаунта? Зарегистрироваться</button>
+      <small class="auth-note" data-i18n="authNote">При регистрации мы отправим письмо подтверждения на указанную вами почту. Пароль не сохраняется в коде сайта.</small>
     </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
   <script src="./motion.js?v=immersiveparallax20261124" defer></script>
-  <script type="module" src="./js/app.js?v=deletefix20261124"></script>
+  <script type="module" src="./js/app.js?v=english20261124"></script>
   <script>
 (() => {
   const button = document.getElementById("accountBtn");

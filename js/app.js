@@ -19,6 +19,10 @@ function save(){saveState({products,cart,orders});}
 function notify(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2300)}
 function applyLanguage(){
  document.documentElement.lang=lang;
+ window.vsLanguage=()=>lang;
+ window.vsTranslate=t;
+ document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{const key=el.dataset.i18nPlaceholder;if(t(key))el.placeholder=t(key)});
+ window.dispatchEvent(new Event("vs-language-change"));
  document.querySelectorAll("[data-i18n]").forEach(el=>{const key=el.dataset.i18n;if(t(key))el.innerHTML=t(key)});
  $("#langBtn").textContent=lang==="ru"?"KG":lang==="kg"?"EN":"RU";
  $("#searchInput").placeholder=t("search");

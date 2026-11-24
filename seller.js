@@ -169,10 +169,24 @@ async function loadData() {
 }
 async function deleteProduct(id) {
   if (!confirm("Удалить этот товар?")) return;
-  const { error } = await supabase.from("products").delete().eq("id", id).eq("seller_id", currentUser.id);
-  if (error) { notify("Не удалось удалить товар: " + error.message); return; }
-  await loadData();
-  notify("Товар удалён");
+  const button = document.querySelector(`[data-delete="${CSS.escape(String(id))}"]`);
+  if (button) button.disabled = true;
+  try {
+    const { data: deletedRows, error } = await supabase.from("products")
+      .delete().eq("id", id).eq("seller_id", currentUser.id).select("id");
+    if (error) throw error;
+    if (!deletedRows?.length) {
+      notify("Товар не удалён: запись не найдена или нет прав");
+      await loadData();
+      return;
+    }
+    products = products.filter(product => String(product.id) !== String(id));
+    await loadData();
+    notify("Товар удалён");
+  } catch (error) {
+    notify("Не удалось удалить товар: " + (error.message || "ошибка"));
+    try { await loadData(); } catch (reloadError) { console.error("Reload after delete:", reloadError); }
+  }
 }
 function editProduct(id) {
   const product = products.find(item => item.id === id);

@@ -1,5 +1,5 @@
 const $ = selector => document.querySelector(selector);
-import { defaultProducts, translations } from "./data.js";
+import { defaultProducts, translations, productTranslations } from "./data.js";
 import { loadState, saveState, loadPreference, savePreference } from "./storage.js";
 import { initAuth } from "./auth.js";
 
@@ -54,7 +54,7 @@ function getSearchSuggestions(query){
  if(q.length<2)return [];
  return products.map(product=>{
    if(!productMatchesQuery(product,q))return null;
-   const name=normalizeSearch(product.name);
+   const name=normalizeSearch(productDisplayName(product));
    const score=name.startsWith(q)?0:name.includes(q)?1:2;
    return {product,score};
  }).filter(Boolean).sort((a,b)=>a.score-b.score||a.product.name.localeCompare(b.product.name,"ru")).slice(0,6).map(row=>row.product);
@@ -85,7 +85,7 @@ function renderSearchSuggestions(){
  }else{
    list.innerHTML=matches.map((product,index)=>`<button type="button" class="search-suggestion" role="option" aria-selected="${index===activeSuggestionIndex}" data-suggestion-index="${index}">
      <span class="suggestion-icon">${product.image?`<img src="${escapeAttr(product.image)}" alt="">`:escapeHtml(String(product.category||"Т").slice(0,1))}</span>
-     <span class="suggestion-copy"><b>${escapeHtml(product.name)}</b><small>${escapeHtml(categoryName(product.category))}</small></span>
+     <span class="suggestion-copy"><b>${escapeHtml(productDisplayName(product))}</b><small>${escapeHtml(categoryName(product.category))}</small></span>
      <span class="suggestion-price">${money(product.price)}</span>
    </button>`).join("");
  }
@@ -93,7 +93,7 @@ function renderSearchSuggestions(){
  input.setAttribute("aria-expanded","true");
  list.querySelectorAll("[data-suggestion-index]").forEach(button=>{
    button.addEventListener("pointerdown",event=>event.preventDefault());
-   button.addEventListener("click",()=>chooseSearchSuggestion(matches[Number(button.dataset.suggestionIndex)].name));
+   button.addEventListener("click",()=>chooseSearchSuggestion(productDisplayName(matches[Number(button.dataset.suggestionIndex)])));
  });
 }
 function handleSearchKeydown(event){
@@ -115,7 +115,7 @@ function handleSearchKeydown(event){
 function renderProducts(){
  const q=$("#searchInput").value.trim();
  const filtered=products.filter(p=>(activeCategory==="all"||p.category===activeCategory)&&productMatchesQuery(p,q));
- $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(p.tag)}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(p.name)}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
+ $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(productDisplayName(p))}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(productDisplayTag(p.tag))}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(productDisplayName(p))}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
  document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(btn.dataset.add)));
 }
 function categoryName(c){return ({Техника:lang==="en"?"Electronics":lang==="kg"?"Техника":"Техника",Одежда:lang==="en"?"Clothing":lang==="kg"?"Кийим":"Одежда",Дом:lang==="en"?"Home":lang==="kg"?"Үй":"Дом",Аксессуары:lang==="en"?"Accessories":lang==="kg"?"Аксессуарлар":"Аксессуары"})[c]||c}

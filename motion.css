@@ -1,4 +1,4 @@
-/* Virtual Shop: scroll reveal + subtle parallax */
+/* Virtual Shop — immersive full-page depth system */
 [data-vs-reveal]{
   opacity:0;
   transform:translate3d(0,26px,0) scale(.99);
@@ -8,13 +8,34 @@
 }
 [data-vs-reveal].vs-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
 .product-card[data-vs-reveal]{animation:none!important}
-.hero-art,.promo-symbol{translate:0 var(--vs-parallax-y,0px)}
+
+/* Scroll-linked depth: translate is independent from each element's own transform */
+[data-vs-depth]{
+  translate:var(--vs-parallax-x,0px) var(--vs-parallax-y,0px);
+  will-change:translate;
+}
+.ambient{translate:0 var(--vs-parallax-y,0px)}
 .hero-art{will-change:translate}
+.hero-disc{translate:calc(var(--vs-pointer-x,0px)*.5) calc(var(--vs-pointer-y,0px)*.5)}
+.orbit-a{translate:calc(var(--vs-pointer-x,0px)*-.28) calc(var(--vs-pointer-y,0px)*-.28)}
+.orbit-b{translate:calc(var(--vs-pointer-x,0px)*.38) calc(var(--vs-pointer-y,0px)*.38)}
+.card-top{translate:calc(var(--vs-pointer-x,0px)*.75) calc(var(--vs-pointer-y,0px)*.75)}
+.card-bottom{translate:calc(var(--vs-pointer-x,0px)*-.65) calc(var(--vs-pointer-y,0px)*-.65)}
+.hero-cross{translate:calc(var(--vs-pointer-x,0px)*-.9) calc(var(--vs-pointer-y,0px)*-.9)}
+.product-card{rotate:var(--vs-card-rotate,0deg);transform-origin:center;transition:rotate .22s ease,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .35s ease}
 .promo-symbol{will-change:translate}
+.promo{background-image:radial-gradient(ellipse at 88% 50%,rgba(184,215,107,.11),transparent 42%)}
+@media(max-width:850px){
+  [data-vs-depth]{will-change:auto}
+  .hero-disc{translate:0 0}
+  .orbit-a,.orbit-b,.card-top,.card-bottom,.hero-cross{translate:0 0}
+}
 @media(max-width:620px){
   [data-vs-reveal]{transform:translate3d(0,18px,0) scale(.995);transition-duration:.6s}
+  .product-card{rotate:0deg!important}
 }
 @media(prefers-reduced-motion:reduce){
   [data-vs-reveal]{opacity:1!important;transform:none!important;transition:none!important;will-change:auto}
-  .hero-art,.promo-symbol{translate:none!important;will-change:auto}
+  [data-vs-depth],.hero-art,.promo-symbol,.hero-disc,.orbit-a,.orbit-b,.card-top,.card-bottom,.hero-cross{translate:none!important;will-change:auto}
+  .product-card{rotate:0deg!important}
 }

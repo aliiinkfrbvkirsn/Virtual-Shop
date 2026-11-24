@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <meta name="theme-color" content="#7135f4">
   <title>Virtual Shop</title>
-  <link rel="stylesheet" href="./styles.css?v=cartclosefix2_20261124">
+  <link rel="stylesheet" href="./styles.css?v=floatingcartclose20261124">
   <link rel="stylesheet" href="./motion.css?v=immersiveparallax20261124">
 </head>
 <body>
@@ -90,6 +90,7 @@
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-bottom"><div><span data-i18n="total">Итого</span><strong id="cartTotal">0 сом</strong></div><button class="primary-btn" id="checkoutBtn" data-i18n="checkout">Оформить заказ ↗</button><small data-i18n="checkoutNote">Демо: реальная оплата пока не подключена.</small></div>
   </aside>
+  <button id="cartCloseFloating" class="cart-close-floating" type="button" aria-label="Закрыть корзину" hidden>×</button>
 
   <div class="modal" id="accountModal" aria-hidden="true">
     <div class="modal-card auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">

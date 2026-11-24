@@ -1,4 +1,4 @@
-const CACHE_NAME = "virtual-shop-v16";
+const CACHE_NAME = "virtual-shop-v17";
 const FILES = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const FILES = [
   "./icons/icon-512.png",
   "./icons/icon.svg",
   "./styles.css",
+  "./motion.css",
+  "./motion.js",
   "./js/data.js",
   "./js/storage.js",
   "./js/app.js",

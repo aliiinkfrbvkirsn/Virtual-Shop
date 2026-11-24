@@ -37,8 +37,8 @@ export function initAuth({ notify = () => {} } = {}) {
     passwordInput.autocomplete = signup ? "new-password" : "current-password";
     $("#authTitle").textContent = signup ? authText("Create an account", "Создать аккаунт") : authText("Sign in to your account", "Войти в аккаунт");
     $("#authDescription").textContent = signup
-      ? "Укажите почту и придумайте пароль. Мы отправим письмо для подтверждения адреса."
-      : "Введите почту и пароль, чтобы открыть личный кабинет.";
+      ? authText("Enter your email and create a password. We will send you a confirmation email.", "Укажите почту и придумайте пароль. Мы отправим письмо для подтверждения адреса.")
+      : authText("Enter your email and password to access your account.", "Введите почту и пароль, чтобы открыть личный кабинет.");
     submit.innerHTML = signup ? authText("Create account <span>↗</span>", "Зарегистрироваться <span>↗</span>") : authText("Sign in <span>↗</span>", "Войти <span>↗</span>");
     tabs.querySelectorAll("[data-auth-mode]").forEach(button => {
       button.classList.toggle("active", button.dataset.authMode === mode);
@@ -133,7 +133,7 @@ export function initAuth({ notify = () => {} } = {}) {
       return;
     }
     submit.disabled = true;
-    submit.textContent = mode === "signup" ? "Создаём аккаунт…" : "Входим…";
+    submit.textContent = mode === "signup" ? authText("Creating account…", "Создаём аккаунт…") : authText("Signing in…", "Входим…");
     setMessage("");
     try {
       if (!supabase) await initializeClient();
@@ -172,7 +172,7 @@ export function initAuth({ notify = () => {} } = {}) {
       setMessage(friendly, "error");
     } finally {
       submit.disabled = false;
-      submit.innerHTML = mode === "signup" ? "Зарегистрироваться <span>↗</span>" : "Войти <span>↗</span>";
+      submit.innerHTML = mode === "signup" ? authText("Create account <span>↗</span>", "Зарегистрироваться <span>↗</span>") : authText("Sign in <span>↗</span>", "Войти <span>↗</span>");
     }
   });
 
@@ -182,8 +182,7 @@ export function initAuth({ notify = () => {} } = {}) {
       if (!supabase) await initializeClient();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      window.addEventListener("vs-language-change", () => { if (session?.user) renderSession(session); else setMode(mode); });
-  setMode("login");
+      setMode("login");
       notify("Вы вышли из аккаунта");
     } catch (error) {
       setMessage("Не удалось выйти: " + (error?.message || "проверьте интернет и попробуйте снова."), "error");
@@ -218,6 +217,7 @@ export function initAuth({ notify = () => {} } = {}) {
     return clientPromise;
   }
 
+  window.addEventListener("vs-language-change", () => { if (session?.user) renderSession(session); else setMode(mode); });
   setMode("login");
   void initializeClient().catch(error => {
     console.error("Virtual Shop: Supabase не загрузился", error);

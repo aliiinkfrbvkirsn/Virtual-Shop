@@ -129,7 +129,7 @@ function renderCart(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>changeQty(b.dataset.minus,-1));
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>changeQty(b.dataset.plus,1));
 }
-function openCart(open){$("#cartDrawer").classList.toggle("open",open);$("#backdrop").classList.toggle("open",open)}
+function openCart(open){$("#cartDrawer").classList.toggle("open",open);$("#backdrop").classList.toggle("open",open);const closeFloat=$("#cartCloseFloating");if(closeFloat)closeFloat.hidden=!open}
 function renderAdmin(){
  if (!$("#adminPanel")) return;
  $("#statProducts").textContent=products.length;
@@ -156,7 +156,7 @@ $("#searchInput").addEventListener("focus",()=>{if($("#searchInput").value.trim(
 $("#searchInput").addEventListener("keydown",handleSearchKeydown);
 document.addEventListener("click",event=>{if(!event.target.closest(".search-wrap"))hideSearchSuggestions()});
 $("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":lang==="kg"?"en":"ru";savePreference("vs_lang",lang);applyLanguage()};
-$("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
+$("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#cartCloseFloating").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";hideSearchSuggestions();renderCategories();renderProducts()};
 $("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify(t("notEnoughStock"));return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};

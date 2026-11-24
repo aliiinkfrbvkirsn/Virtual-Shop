@@ -21,6 +21,8 @@ export function initAuth({ notify = () => {} } = {}) {
   let supabase = null;
   let profileSyncedFor = null;
   let clientPromise = null;
+  const isEnglish = () => window.vsLanguage?.() === "en";
+  const authText = (english, fallback) => isEnglish() ? english : fallback;
 
   const setMessage = (text, type = "") => {
     message.textContent = text;
@@ -33,15 +35,15 @@ export function initAuth({ notify = () => {} } = {}) {
     nameField.hidden = !signup;
     nameInput.required = signup;
     passwordInput.autocomplete = signup ? "new-password" : "current-password";
-    $("#authTitle").textContent = signup ? "Создать аккаунт" : "Войти в аккаунт";
+    $("#authTitle").textContent = signup ? authText("Create an account", "Создать аккаунт") : authText("Sign in to your account", "Войти в аккаунт");
     $("#authDescription").textContent = signup
       ? "Укажите почту и придумайте пароль. Мы отправим письмо для подтверждения адреса."
       : "Введите почту и пароль, чтобы открыть личный кабинет.";
-    submit.innerHTML = signup ? "Зарегистрироваться <span>↗</span>" : "Войти <span>↗</span>";
+    submit.innerHTML = signup ? authText("Create account <span>↗</span>", "Зарегистрироваться <span>↗</span>") : authText("Sign in <span>↗</span>", "Войти <span>↗</span>");
     tabs.querySelectorAll("[data-auth-mode]").forEach(button => {
       button.classList.toggle("active", button.dataset.authMode === mode);
     });
-    authSwitch.textContent = signup ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+    authSwitch.textContent = signup ? authText("Already have an account? Sign in", "Уже есть аккаунт? Войти") : authText("No account? Create one", "Нет аккаунта? Зарегистрироваться");
     setMessage("");
   };
 
@@ -91,11 +93,11 @@ export function initAuth({ notify = () => {} } = {}) {
       form.hidden = true;
       authSwitch.hidden = true;
       signedIn.hidden = false;
-      $("#authTitle").textContent = "Личный кабинет";
-      $("#authDescription").textContent = "Вы вошли в Virtual Shop.";
+      $("#authTitle").textContent = authText("Your account", "Личный кабинет");
+      $("#authDescription").textContent = authText("You are signed in to Virtual Shop.", "Вы вошли в Virtual Shop.");
       $("#authUserEmail").textContent = user.email || "";
       $("#authUserMark").textContent = (user.email || "A").charAt(0).toUpperCase();
-      setMessage("Аккаунт успешно подключён.", "success");
+      setMessage(authText("Account connected successfully.", "Аккаунт успешно подключён."), "success");
       void syncProfile(user);
     } else {
       tabs.hidden = false;
@@ -180,7 +182,8 @@ export function initAuth({ notify = () => {} } = {}) {
       if (!supabase) await initializeClient();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      setMode("login");
+      window.addEventListener("vs-language-change", () => { if (session?.user) renderSession(session); else setMode(mode); });
+  setMode("login");
       notify("Вы вышли из аккаунта");
     } catch (error) {
       setMessage("Не удалось выйти: " + (error?.message || "проверьте интернет и попробуйте снова."), "error");

@@ -195,7 +195,7 @@ async function initPublicCatalog(){
   if(!Array.isArray(rows))return;
   const previousProducts=products;
   const previousCart=cart;
-  products=rows.map(row=>({
+  const remoteProducts=rows.map(row=>({
    id:row.id,
    name:row.name,
    category:row.category||"Другое",
@@ -205,11 +205,14 @@ async function initPublicCatalog(){
    image:row.image_url||"",
    tag:row.tag||""
   }));
+  const remoteNames=new Set(remoteProducts.map(product=>normalizeSearch(product.name)));
+  const localOnly=previousProducts.filter(product=>!remoteNames.has(normalizeSearch(product.name)));
+  products=remoteProducts.concat(localOnly);
   cart=previousCart.map(item=>{
    const previous=previousProducts.find(product=>String(product.id)===String(item.id));
    const match=previous&&rows.find(row=>normalizeSearch(row.name)===normalizeSearch(previous.name));
    return match?{...item,id:match.id}:item;
-  }).filter(item=>products.some(product=>String(product.id)===String(item.id)));
+  });
   save();
   renderProducts();
   renderCart();

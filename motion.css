@@ -1,0 +1,20 @@
+/* Virtual Shop: scroll reveal + subtle parallax */
+[data-vs-reveal]{
+  opacity:0;
+  transform:translate3d(0,26px,0) scale(.99);
+  transition:opacity .75s cubic-bezier(.2,.7,.2,1),transform .85s cubic-bezier(.2,.7,.2,1);
+  transition-delay:var(--vs-reveal-delay,0ms);
+  will-change:opacity,transform;
+}
+[data-vs-reveal].vs-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
+.product-card[data-vs-reveal]{animation:none!important}
+.hero-art,.promo-symbol{translate:0 var(--vs-parallax-y,0px)}
+.hero-art{will-change:translate}
+.promo-symbol{will-change:translate}
+@media(max-width:620px){
+  [data-vs-reveal]{transform:translate3d(0,18px,0) scale(.995);transition-duration:.6s}
+}
+@media(prefers-reduced-motion:reduce){
+  [data-vs-reveal]{opacity:1!important;transform:none!important;transition:none!important;will-change:auto}
+  .hero-art,.promo-symbol{translate:none!important;will-change:auto}
+}

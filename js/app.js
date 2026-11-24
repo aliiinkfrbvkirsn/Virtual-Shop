@@ -162,32 +162,8 @@ async function initPublicCatalog(){
   const db=createClient("https://qmtyidlsoeotjfyhnghj.supabase.co","sb_publishable_oVfg8lt1cr-yy0biWYsRng_T-yfROHC",{
    auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
   });
-  const {data:sessionResult}=await db.auth.getSession();
-  const user=sessionResult?.session?.user;
-  if(user){
-   const {data:profile}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
-   if(["seller","admin"].includes(profile?.role)){
-    const {data:ownRows,error:ownError}=await db.from("products").select("name").eq("seller_id",user.id);
-    if(ownError)throw ownError;
-    const known=new Set((ownRows||[]).map(row=>normalizeSearch(row.name)));
-    const missing=products.filter(product=>!known.has(normalizeSearch(product.name))&&String(product.name||"").trim());
-    if(missing.length){
-     const payload=missing.map(product=>({
-      seller_id:user.id,
-      name:String(product.name).trim(),
-      category:product.category||"Другое",
-      description:product.description||"",
-      price:Number(product.price)||0,
-      stock:Math.max(0,Number(product.stock)||0),
-      image_url:product.image||product.image_url||null,
-      tag:product.tag||"",
-      is_active:true
-     }));
-     const {error:insertError}=await db.from("products").insert(payload);
-     if(insertError)throw insertError;
-    }
-   }
-  }
+  // Supabase is the single source of truth. Never recreate deleted database
+  // products from an old localStorage snapshot.
   const {data:rows,error}=await db.from("products")
    .select("id,name,category,description,price,stock,image_url,tag,is_active,created_at")
    .eq("is_active",true).order("created_at",{ascending:false});
@@ -195,7 +171,7 @@ async function initPublicCatalog(){
   if(!Array.isArray(rows))return;
   const previousProducts=products;
   const previousCart=cart;
-  const remoteProducts=rows.map(row=>({
+  products=rows.map(row=>({
    id:row.id,
    name:row.name,
    category:row.category||"Другое",
@@ -205,14 +181,14 @@ async function initPublicCatalog(){
    image:row.image_url||"",
    tag:row.tag||""
   }));
-  const remoteNames=new Set(remoteProducts.map(product=>normalizeSearch(product.name)));
-  const localOnly=previousProducts.filter(product=>!remoteNames.has(normalizeSearch(product.name)));
-  products=remoteProducts.concat(localOnly);
+  // Keep only cart rows that still refer to products present in the live catalog.
   cart=previousCart.map(item=>{
    const previous=previousProducts.find(product=>String(product.id)===String(item.id));
-   const match=previous&&rows.find(row=>normalizeSearch(row.name)===normalizeSearch(previous.name));
-   return match?{...item,id:match.id}:item;
-  });
+   if(!previous)return null;
+   const match=rows.find(row=>String(row.id)===String(item.id)) ||
+     rows.find(row=>normalizeSearch(row.name)===normalizeSearch(previous.name));
+   return match?{...item,id:match.id}:null;
+  }).filter(Boolean);
   save();
   renderProducts();
   renderCart();

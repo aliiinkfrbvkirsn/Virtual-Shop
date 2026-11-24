@@ -13,24 +13,24 @@ let activeCategory = "all";
 let toastTimer;
 let editingProductId = null;
 let activeSuggestionIndex = -1;
-const money = n => `${Number(n).toLocaleString("ru-RU")} сом`;
+const money = n => `${Number(n).toLocaleString(lang==="en"?"en-US":lang==="kg"?"ky-KG":"ru-RU")} сом`;
 const t = key => translations[lang][key] || translations.ru[key];
 function save(){saveState({products,cart,orders});}
 function notify(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2300)}
 function applyLanguage(){
  document.documentElement.lang=lang;
  document.querySelectorAll("[data-i18n]").forEach(el=>{const key=el.dataset.i18n;if(t(key))el.innerHTML=t(key)});
- $("#langBtn").textContent=lang==="ru"?"KG":"RU";
+ $("#langBtn").textContent=lang==="ru"?"KG":lang==="kg"?"EN":"RU";
  $("#searchInput").placeholder=t("search");
  renderCategories();renderProducts();renderCart();renderAdmin();
 }
 function renderCategories(){
- const names=lang==="ru"?["Все","Техника","Одежда","Дом","Аксессуары"]:translations.kg.categories;
+ const names=translations[lang].categories;
  const keys=["all","Техника","Одежда","Дом","Аксессуары"];
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
-function normalizeSearch(value){return String(value||"").toLocaleLowerCase("ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
+function normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
 function searchTokenMatches(queryToken, productToken){
  if(!queryToken||!productToken)return false;
  if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;
@@ -77,7 +77,7 @@ function renderSearchSuggestions(){
  if(!query){hideSearchSuggestions();return}
  const matches=getSearchSuggestions(query);
  if(!matches.length){
-   list.innerHTML='<div class="search-suggestion-empty">Ничего похожего не найдено</div>';
+   list.innerHTML=`<div class="search-suggestion-empty">${t("searchEmpty")}</div>`;
  }else{
    list.innerHTML=matches.map((product,index)=>`<button type="button" class="search-suggestion" role="option" aria-selected="${index===activeSuggestionIndex}" data-suggestion-index="${index}">
      <span class="suggestion-icon">${product.image?`<img src="${escapeAttr(product.image)}" alt="">`:escapeHtml(String(product.category||"Т").slice(0,1))}</span>
@@ -114,8 +114,8 @@ function renderProducts(){
  $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(p.tag)}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(p.name)}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
  document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(btn.dataset.add)));
 }
-function categoryName(c){if(lang==="ru")return c;return ({Техника:"Техника",Одежда:"Кийим",Дом:"Үй",Аксессуары:"Аксессуарлар"})[c]||c}
-function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p||p.stock<1){notify("Нет товара в наличии");return}const row=cart.find(x=>String(x.id)===String(id));if(row)row.qty=Math.min(row.qty+1,p.stock);else cart.push({id,qty:1});save();renderCart();renderAdmin();notify(t("added"))}
+function categoryName(c){return ({Техника:lang==="en"?"Electronics":lang==="kg"?"Техника":"Техника",Одежда:lang==="en"?"Clothing":lang==="kg"?"Кийим":"Одежда",Дом:lang==="en"?"Home":lang==="kg"?"Үй":"Дом",Аксессуары:lang==="en"?"Accessories":lang==="kg"?"Аксессуарлар":"Аксессуары"})[c]||c}
+function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p||p.stock<1){notify(t("outOfStock"));return}const row=cart.find(x=>String(x.id)===String(id));if(row)row.qty=Math.min(row.qty+1,p.stock);else cart.push({id,qty:1});save();renderCart();renderAdmin();notify(t("added"))}
 function changeQty(id,delta){const row=cart.find(x=>String(x.id)===String(id)),p=products.find(x=>String(x.id)===String(id));if(!row)return;row.qty+=delta;if(row.qty<1)cart=cart.filter(x=>x.id!==id);if(p&&row.qty>p.stock)row.qty=p.stock;save();renderCart()}
 function renderCart(){
  const count=cart.reduce((s,x)=>s+x.qty,0);$("#cartCount").textContent=count;
@@ -151,11 +151,11 @@ $("#searchInput").addEventListener("input",()=>{activeSuggestionIndex=-1;renderP
 $("#searchInput").addEventListener("focus",()=>{if($("#searchInput").value.trim())renderSearchSuggestions()});
 $("#searchInput").addEventListener("keydown",handleSearchKeydown);
 document.addEventListener("click",event=>{if(!event.target.closest(".search-wrap"))hideSearchSuggestions()});
-$("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":"ru";savePreference("vs_lang",lang);applyLanguage()};
+$("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":lang==="kg"?"en":"ru";savePreference("vs_lang",lang);applyLanguage()};
 $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";hideSearchSuggestions();renderCategories();renderProducts()};
-$("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify("Недостаточно товара на складе");return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
+$("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify(t("notEnoughStock"));return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
 async function initPublicCatalog(){
  try{
   const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2.119.1");

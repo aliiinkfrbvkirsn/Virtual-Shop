@@ -86,7 +86,7 @@
 
   <div class="drawer-backdrop" id="backdrop"></div>
   <aside class="drawer" id="cartDrawer" aria-label="Корзина">
-    <div class="drawer-head"><h2 data-i18n="cartTitle">Корзина</h2><button class="close-btn" id="closeCart">×</button></div>
+    <div class="drawer-head"><h2 data-i18n="cartTitle">Корзина</h2><button class="close-btn drawer-close" id="closeCart" type="button" aria-label="Close cart" title="Close cart"><span aria-hidden="true">×</span></button></div>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-bottom"><div><span data-i18n="total">Итого</span><strong id="cartTotal">0 сом</strong></div><button class="primary-btn" id="checkoutBtn" data-i18n="checkout">Оформить заказ ↗</button><small data-i18n="checkoutNote">Демо: реальная оплата пока не подключена.</small></div>
   </aside>
@@ -121,7 +121,7 @@
   </div>
   <div class="toast" id="toast" role="status"></div>
   <script src="./motion.js?v=immersiveparallax20261124" defer></script>
-  <script type="module" src="./js/app.js?v=english20261124"></script>
+  <script type="module" src="./js/app.js?v=cartclose20261124"></script>
   <script>
 (() => {
   const button = document.getElementById("accountBtn");

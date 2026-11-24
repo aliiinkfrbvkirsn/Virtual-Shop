@@ -34,7 +34,8 @@ function renderCategories(){
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
-function productDisplayName(product){return productTranslations[lang]?.[product.name] || product.name}\nfunction productDisplayTag(tag){if(!tag)return "";const tags={"ХИТ":{kg:"ХИТ",en:"BESTSELLER"},"ВЫБОР":{kg:"ТАНДОО",en:"PICK"}};return tags[tag]?.[lang]||tag}\nfunction normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
+function productDisplayName(product){const field=lang==="kg"?"name_kg":"name_en";return (lang==="ru"?product.name:product[field]) || productTranslations[lang]?.[product.name] || product.name}
+function productDisplayDescription(product){const field=lang==="kg"?"description_kg":"description_en";return lang==="ru"?product.description||"":product[field]||product.description||""}\nfunction productDisplayTag(tag){if(!tag)return "";const tags={"ХИТ":{kg:"ХИТ",en:"BESTSELLER"},"ВЫБОР":{kg:"ТАНДОО",en:"PICK"}};return tags[tag]?.[lang]||tag}\nfunction normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
 function searchTokenMatches(queryToken, productToken){
  if(!queryToken||!productToken)return false;
  if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;
@@ -115,7 +116,7 @@ function handleSearchKeydown(event){
 function renderProducts(){
  const q=$("#searchInput").value.trim();
  const filtered=products.filter(p=>(activeCategory==="all"||p.category===activeCategory)&&productMatchesQuery(p,q));
- $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(productDisplayName(p))}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(productDisplayTag(p.tag))}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(productDisplayName(p))}</h3><div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
+ $("#productGrid").innerHTML=filtered.length?filtered.map((p,i)=>`<article class="product-card" style="animation-delay:${i*45}ms"><div class="product-image">${p.image?`<img src="${escapeAttr(p.image)}" alt="${escapeAttr(productDisplayName(p))}" onerror="this.remove()">`:`<span class="product-placeholder">${escapeHtml(String(p.category || "Т").slice(0,1))}</span>`}${p.tag?`<span class="product-tag">${escapeHtml(productDisplayTag(p.tag))}</span>`:""}</div><div class="product-info"><div class="product-category">${escapeHtml(categoryName(p.category))}</div><h3>${escapeHtml(productDisplayName(p))}</h3>${productDisplayDescription(p)?`<p class="product-description">${escapeHtml(productDisplayDescription(p))}</p>`:""}<div class="product-bottom"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${p.id}" aria-label="Добавить в корзину">+</button></div><div class="stock-note">${t("stock")}: ${p.stock}</div></div></article>`).join(""):`<div class="empty-state">${t("noProducts")}</div>`;
  document.querySelectorAll("[data-add]").forEach(btn=>btn.addEventListener("click",()=>addToCart(btn.dataset.add)));
 }
 function categoryName(c){return ({Техника:lang==="en"?"Electronics":lang==="kg"?"Техника":"Техника",Одежда:lang==="en"?"Clothing":lang==="kg"?"Кийим":"Одежда",Дом:lang==="en"?"Home":lang==="kg"?"Үй":"Дом",Аксессуары:lang==="en"?"Accessories":lang==="kg"?"Аксессуарлар":"Аксессуары"})[c]||c}
@@ -123,7 +124,7 @@ function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p
 function changeQty(id,delta){const row=cart.find(x=>String(x.id)===String(id)),p=products.find(x=>String(x.id)===String(id));if(!row)return;row.qty+=delta;if(row.qty<1)cart=cart.filter(x=>x.id!==id);if(p&&row.qty>p.stock)row.qty=p.stock;save();renderCart()}
 function renderCart(){
  const count=cart.reduce((s,x)=>s+x.qty,0);$("#cartCount").textContent=count;
- const rows=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?`<div class="cart-row"><div><b>${escapeHtml(p.name)}</b><small>${money(p.price)} × ${row.qty}</small></div><div class="quantity"><button data-minus="${p.id}">−</button><b>${row.qty}</b><button data-plus="${p.id}">+</button></div></div>`:""}).join("");
+ const rows=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?`<div class="cart-row"><div><b>${escapeHtml(productDisplayName(p))}</b><small>${money(p.price)} × ${row.qty}</small></div><div class="quantity"><button data-minus="${p.id}">−</button><b>${row.qty}</b><button data-plus="${p.id}">+</button></div></div>`:""}).join("");
  $("#cartItems").innerHTML=rows||`<div class="empty-state">${t("emptyCart")}</div>`;
  $("#cartTotal").textContent=money(cart.reduce((sum,row)=>{const p=products.find(x=>x.id===row.id);return sum+(p?p.price*row.qty:0)},0));
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>changeQty(b.dataset.minus,-1));
@@ -159,7 +160,7 @@ $("#langBtn").onclick=()=>{lang=lang==="ru"?"kg":lang==="kg"?"en":"ru";savePrefe
 $("#cartBtn").onclick=()=>openCart(true);$("#closeCart").onclick=()=>openCart(false);$("#cartCloseFloating").onclick=()=>openCart(false);$("#backdrop").onclick=()=>openCart(false);
 $("#shopNow").onclick=()=>$("#catalog").scrollIntoView({behavior:"smooth"});
 $("#allProducts").onclick=()=>{activeCategory="all";$("#searchInput").value="";hideSearchSuggestions();renderCategories();renderProducts()};
-$("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:p.name,price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify(t("notEnoughStock"));return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
+$("#checkoutBtn").onclick=()=>{if(!cart.length){notify(t("emptyCart"));return}const lines=cart.map(row=>{const p=products.find(x=>x.id===row.id);return p?{id:p.id,name:productDisplayName(p),price:p.price,qty:row.qty}:null}).filter(Boolean);for(const line of lines){const p=products.find(x=>x.id===line.id);if(!p||p.stock<line.qty){notify(t("notEnoughStock"));return}}lines.forEach(line=>{products.find(p=>p.id===line.id).stock-=line.qty});orders.unshift({id:Date.now(),date:new Date().toISOString(),items:lines,total:lines.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];save();renderCart();renderProducts();renderAdmin();openCart(false);notify(t("ordered"))};
 async function initPublicCatalog(){
  try{
   const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2.119.1");
@@ -169,7 +170,7 @@ async function initPublicCatalog(){
   // Supabase is the single source of truth. Never recreate deleted database
   // products from an old localStorage snapshot.
   const {data:rows,error}=await db.from("products")
-   .select("id,name,category,description,price,stock,image_url,tag,is_active,created_at")
+   .select("id,name,name_kg,name_en,category,description,description_kg,description_en,price,stock,image_url,tag,is_active,created_at")
    .eq("is_active",true).order("created_at",{ascending:false});
   if(error)throw error;
   if(!Array.isArray(rows))return;
@@ -178,8 +179,12 @@ async function initPublicCatalog(){
   products=rows.map(row=>({
    id:row.id,
    name:row.name,
+   name_kg:row.name_kg||"",
+   name_en:row.name_en||"",
    category:row.category||"Другое",
    description:row.description||"",
+   description_kg:row.description_kg||"",
+   description_en:row.description_en||"",
    price:Number(row.price)||0,
    stock:Number(row.stock)||0,
    image:row.image_url||"",

@@ -34,7 +34,7 @@ function renderCategories(){
  $("#categories").innerHTML=names.map((name,i)=>`<button class="category-btn ${activeCategory===keys[i]?"active":""}" data-category="${keys[i]}">${name}</button>`).join("");
  document.querySelectorAll(".category-btn").forEach(btn=>btn.addEventListener("click",()=>{activeCategory=btn.dataset.category;renderCategories();renderProducts()}));
 }
-function normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
+function productDisplayName(product){return productTranslations[lang]?.[product.name] || product.name}\nfunction productDisplayTag(tag){if(!tag)return "";const tags={"ХИТ":{kg:"ХИТ",en:"BESTSELLER"},"ВЫБОР":{kg:"ТАНДОО",en:"PICK"}};return tags[tag]?.[lang]||tag}\nfunction normalizeSearch(value){return String(value||"").toLocaleLowerCase(lang==="en"?"en":"ru").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim()}
 function searchTokenMatches(queryToken, productToken){
  if(!queryToken||!productToken)return false;
  if(productToken.startsWith(queryToken)||queryToken.startsWith(productToken))return true;

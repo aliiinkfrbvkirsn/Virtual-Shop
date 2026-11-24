@@ -39,3 +39,10 @@
   [data-vs-depth],.hero-art,.promo-symbol,.hero-disc,.orbit-a,.orbit-b,.card-top,.card-bottom,.hero-cross{translate:none!important;will-change:auto}
   .product-card{rotate:0deg!important}
 }
+
+/* Keep the hero artwork vertically centered while it enters */
+@keyframes vs-art-enter{
+  from{opacity:0;scale:.92}
+  to{opacity:1;scale:1}
+}
+.hero-art{animation:vs-art-enter .9s .18s both}

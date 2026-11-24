@@ -215,3 +215,6 @@ footer{background:var(--dark);color:var(--white);padding:35px 7%;display:flex;al
   .hero-art{animation-delay:.12s}
   .promo::after{width:150px;height:150px;right:-5%}
 }
+
+/* Cart close control: keep it below the sticky site header on phones. */
+@media(max-width:620px){.drawer{top:65px!important;height:calc(100dvh - 65px)!important;max-height:calc(100vh - 65px);z-index:41!important;padding:16px 18px 20px!important}.drawer-head{display:flex!important;min-height:54px!important;align-items:center!important;justify-content:space-between!important;visibility:visible!important;opacity:1!important}.drawer-head h2{display:block!important;visibility:visible!important}#closeCart.drawer-close{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:relative!important;flex:0 0 46px!important;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;background:#c7e96c!important;color:#171a12!important;border:2px solid #171a12!important;border-radius:50%!important;font-size:34px!important;line-height:1!important;z-index:999!important;box-shadow:0 3px 12px #0003!important}}

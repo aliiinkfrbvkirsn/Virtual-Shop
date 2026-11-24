@@ -46,7 +46,7 @@ function productMatchesQuery(product,query){
  const q=normalizeSearch(query);
  if(!q)return true;
  const queryTokens=q.split(/\s+/).filter(Boolean);
- const productTokens=normalizeSearch(product.name+" "+categoryName(product.category)).split(/\s+/).filter(Boolean);
+ const productTokens=normalizeSearch(product.name+" "+productDisplayName(product)+" "+categoryName(product.category)).split(/\s+/).filter(Boolean);
  return queryTokens.every(token=>productTokens.some(candidate=>searchTokenMatches(token,candidate)));
 }
 function getSearchSuggestions(query){
